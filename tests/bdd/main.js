@@ -26,7 +26,8 @@ require({
     require({
         cache: false
     }, [
-        "./ClassTest"
+        "./ClassTest",
+        "./WeakMapTest"
     ], function () {
         mocha.run();
     });
