@@ -1,74 +1,80 @@
 define([
-    "js/util"
+    "js/util",
+    "js/WeakMap"
 ], function (
-    util
+    util,
+    WeakMap
 ) {
     "use strict";
 
-    function Class(members) {
-        /*jslint evil:true */
+    var privatesMap = new WeakMap();
 
-        var moduleKey = {},
-            constructor = function () {
-                var publics = this,
-                    protecteds = Object.create(publics),
-                    privates = Object.create(protecteds),
-                    secrets = {
-                        protecteds: protecteds,
-                        privates: privates
-                    };
+    function Class(members, prototype, parentProtecteds) {
+        function namedFunction(parent, name) {
+            /*jslint evil:true */
+            return eval("(function " + name + "() { return parent.apply(this, arguments); })");
+        }
 
+        function getPrivates(publics) {
+            var protecteds,
+                privates = privatesMap.get(publics);
+
+            if (!privates) {
+                protecteds = Object.create(publics);
+                privates = Object.create(protecteds);
+
+                protecteds.protecteds = protecteds;
                 protecteds.publics = publics;
+                privates.privates = privates;
                 privates.protecteds = protecteds;
 
-                util.each(members["private"], function (value, name) {
-                    privates[name] = function () {
-                        var secrets = this.valueOf(moduleKey);
+                privatesMap.set(publics, privates);
+            }
 
-                        return value.apply(secrets.privates);
-                    };
-                });
+            return privates;
+        }
 
-                util.each(members["protected"], function (value, name) {
-                    protecteds[name] = function () {
-                        var secrets = this.valueOf(moduleKey);
+        var constructor = function () {
+            var publics = this,
+                privates = getPrivates(publics),
+                protecteds = privates.protecteds;
 
-                        return value.apply(secrets.privates);
-                    };
-                });
+            util.each(members["private"], function (value, name) {
+                privates[name] = util.isFunction(value) ? function () {
+                    return value.apply(getPrivates(publics), arguments);
+                } : value;
+            });
 
-                Object.defineProperty(publics, "valueOf", {
-                    configurable: true,
-                    enumerable: false,
-                    value: function (key) {
-                        if (key === moduleKey) {
-                            return secrets;
-                        }
-                        return Object.prototype.valueOf.call(this);
-                    }
-                });
+            util.each(members["protected"], function (value, name) {
+                protecteds[name] = util.isFunction(value) ? function () {
+                    return value.apply(getPrivates(publics), arguments);
+                } : value;
+            });
 
-                if (util.isFunction(members.constructor)) {
-                    members.constructor.call(this);
-                }
-            },
+            if (members.hasOwnProperty("constructor") && util.isFunction(members.constructor)) {
+                members.constructor.apply(this, arguments);
+            }
+        },
             klass,
             name;
 
         members = members || {};
         name = members.name || "anonymous";
-        klass = eval("(function " + name + "() { return constructor.apply(this, arguments); })");
+        klass = namedFunction(constructor, name);
+
+        if (prototype) {
+            klass.prototype = prototype;
+            prototype.constructor = klass;
+        }
 
         util.each(members["public"], function (value, name) {
-            klass.prototype[name] = function () {
-                var secrets = this.valueOf(moduleKey);
-
-                return value.apply(secrets.privates);
-            };
+            klass.prototype[name] = util.isFunction(value) ? function () {
+                return value.apply(getPrivates(this), arguments);
+            } : value;
         });
 
-        klass.extend = function () {
-
+        klass.extend = function (childMembers) {
+            return new Class(util.extend({}, members, childMembers), Object.create(klass.prototype));
         };
 
         return klass;
