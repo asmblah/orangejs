@@ -6,8 +6,10 @@ define([
     "use strict";
 
     function Class(members) {
+        /*jslint evil:true */
+
         var moduleKey = {},
-            klass = function () {
+            constructor = function () {
                 var publics = this,
                     protecteds = Object.create(publics),
                     privates = Object.create(protecteds),
@@ -49,9 +51,13 @@ define([
                 if (util.isFunction(members.constructor)) {
                     members.constructor.call(this);
                 }
-            };
+            },
+            klass,
+            name;
 
         members = members || {};
+        name = members.name || "anonymous";
+        klass = eval("(function " + name + "() { return constructor.apply(this, arguments); })");
 
         util.each(members["public"], function (value, name) {
             klass.prototype[name] = function () {

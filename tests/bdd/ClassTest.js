@@ -58,5 +58,11 @@ define([
 
             new Adult().checkFaithfulness();
         });
+
+        it("should use the specified name as the class name", function () {
+            var Clarence = new Class({ name: "Clarence" });
+
+            expect(Clarence.name).to.equal("Clarence");
+        });
     });
 });
