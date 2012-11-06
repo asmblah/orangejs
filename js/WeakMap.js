@@ -27,7 +27,7 @@ define([
             "get": function (key, defaultValue) {
                 var values = namespace(key);
 
-                return (values.hasOwnProperty(index)) ? values[index] : undefined;
+                return (values.hasOwnProperty(index)) ? values[index] : defaultValue;
             },
 
             "has": function (key) {

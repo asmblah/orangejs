@@ -142,6 +142,30 @@ define([
 
                 expect(map.get(key)).to.equal(Math.NaN);
             });
+
+            it("should return defaultValue if the specified key is not in the map", function () {
+                var map = new WeakMap();
+
+                expect(map.get({}, 21)).to.equal(21);
+            });
+
+            it("should not return defaultValue if the specified key is in the map with value null", function () {
+                var map = new WeakMap(),
+                    key = {};
+
+                map.set(key, null);
+
+                expect(map.get(key, 26)).to.equal(null);
+            });
+
+            it("should not return defaultValue if the specified key is in the map with value undefined", function () {
+                var map = new WeakMap(),
+                    key = {};
+
+                map.set(key, undefined);
+
+                expect(map.get(key, 29)).to.equal(undefined);
+            });
         });
 
         describe("has()", function () {
