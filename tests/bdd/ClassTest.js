@@ -260,6 +260,19 @@ define([
 
                 expect(constructor).to.have.been.calledWith("arrrg1", 72);
             });
+
+            it("should be called on an object with access to its privates", function () {
+                var Galvanize = new Class({
+                    "constructor": function () {
+                        expect(this).to.have.property("a-matter-of-privacy");
+                    },
+                    "private": {
+                        "a-matter-of-privacy": 5
+                    }
+                });
+
+                new Galvanize();
+            });
         });
 
         describe("classes derived by extend()", function () {

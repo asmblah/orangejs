@@ -52,7 +52,7 @@ define([
             });
 
             if (members.hasOwnProperty("constructor") && util.isFunction(members.constructor)) {
-                members.constructor.apply(this, arguments);
+                members.constructor.apply(privates, arguments);
             }
         },
             klass,
