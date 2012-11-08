@@ -5,13 +5,13 @@ define([
 ) {
     "use strict";
 
-    var nextIndex = 0;
+    var key = {},
+        nextIndex = 0;
 
     // ES6 WeakMap
     // - See https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/WeakMap
     function WeakMap() {
-        var namespace = createNamespace(),
-            index = nextIndex;
+        var index = nextIndex;
 
         nextIndex += 1;
 
@@ -40,30 +40,26 @@ define([
         });
     }
 
-    function createNamespace() {
-        var key = {};
+    function namespace(obj) {
+        var values = obj.valueOf(key),
+            valueOf = obj.valueOf;
 
-        return function (obj) {
-            var values = obj.valueOf(key),
-                valueOf = obj.valueOf;
+        if (values === obj) {
+            values = {};
 
-            if (values === obj) {
-                values = {};
-
-                Object.defineProperty(obj, "valueOf", {
-                    configurable: true,
-                    enumerable: false,
-                    value: function (request) {
-                        if (request === key) {
-                            return values;
-                        }
-                        return valueOf.apply(this, arguments);
+            Object.defineProperty(obj, "valueOf", {
+                configurable: true,
+                enumerable: false,
+                value: function (request) {
+                    if (request === key) {
+                        return values;
                     }
-                });
-            }
+                    return valueOf.apply(this, arguments);
+                }
+            });
+        }
 
-            return values;
-        };
+        return values;
     }
 
     return WeakMap;
