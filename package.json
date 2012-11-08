@@ -1,0 +1,37 @@
+{
+    "version": "0.0.1",
+    "name": "orange",
+    "publishConfig": {
+        "proprietary-attribs": false
+    },
+    "description": "General toolkit for JavaScript. General like Orange Juice.",
+    "keywords": [
+        "amd",
+        "toolkit",
+        "es6",
+        "weakmap"
+    ],
+    "config": {
+        "publishtest": false
+    },
+    "homepage": "http://asmblah.github.com/orangejs/",
+    "author": "Daniel Phillimore <dan@ovms.co> (http://ovms.co)",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/asmblah/orangejs"
+    },
+    "bugs": {
+        "email": "dan@ovms.co",
+        "url": "http://github.com/asmblah/orangejs/issues"
+    },
+    "engines": {
+        "node": ">=0.6",
+        "npm": "1"
+    },
+    "licenses": [
+        {
+            "type": "GPL",
+            "url": "https://github.com/asmblah/orangejs/raw/master/LICENSE.txt"
+        }
+    ]
+}
