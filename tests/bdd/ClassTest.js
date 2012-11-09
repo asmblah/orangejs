@@ -328,18 +328,21 @@ define([
             });
         });
 
-        describe("constructor", function () {
+        /*describe("constructor", function () {
             it("should not be called if no instances are created", function () {
                 var constructor = sinon.spy(),
-                    Silent = new Class(constructor);
+                    Silent = new Class({
+                        "public constructor": constructor
+                    });
 
                 expect(constructor).to.not.have.been.called;
             });
 
             it("should be called twice if two instances are created", function () {
-                debugger;
                 var constructor = sinon.spy(),
-                    Constructable = new Class(constructor),
+                    Constructable = new Class({
+                        "public constructor": constructor
+                    }),
                     obj;
 
                 obj = new Constructable();
@@ -350,7 +353,9 @@ define([
 
             it("should be called with arguments if specified", function () {
                 var constructor = sinon.spy(),
-                    Scary = new Class(constructor),
+                    Scary = new Class({
+                        "public constructor": constructor
+                    }),
                     obj = new Scary("arrrg1", 72);
 
                 expect(constructor).to.have.been.calledWith("arrrg1", 72);
@@ -365,7 +370,7 @@ define([
 
                 new Galvanize();
             });
-        });
+        });*/
 
         describe("classes derived by extend()", function () {
             it("should create objects that are instances of that class", function () {
@@ -404,7 +409,6 @@ define([
             });
 
             it("should create objects that have access to the parent class' protected members", function () {
-                debugger;
                 var Super = new Class({
                     "protected a-protected-prop": 7
                 }),
@@ -468,10 +472,12 @@ define([
                 new Derived().tryIt();
             });
 
-            it("should call the derived class' constructor if specified", function () {
+            /*it("should call the derived class' constructor if specified", function () {
                 var Super = new Class(),
                     constructor = sinon.spy(),
-                    Derived = Super.extend(constructor),
+                    Derived = Super.extend({
+                        "public constructor": constructor
+                    }),
                     obj = new Derived();
 
                 expect(constructor).to.have.been.called;
@@ -480,7 +486,9 @@ define([
             it("should call the derived class' constructor with arguments if specified", function () {
                 var Super = new Class(),
                     constructor = sinon.spy(),
-                    Derived = Super.extend(constructor),
+                    Derived = Super.extend({
+                        "public constructor": constructor
+                    }),
                     obj = new Derived(2, 7);
 
                 expect(constructor).to.have.been.calledWith(2, 7);
@@ -488,12 +496,14 @@ define([
 
             it("should call the parent class' constructor if specified when child class does not define one", function () {
                 var constructor = sinon.spy(),
-                    Super = new Class(constructor),
+                    Super = new Class({
+                        "public constructor": constructor
+                    }),
                     Derived = Super.extend(),
                     obj = new Derived();
 
                 expect(constructor).to.have.been.calledOnce;
-            });
+            });*/
         });
     });
 });

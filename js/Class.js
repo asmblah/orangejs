@@ -29,14 +29,21 @@ define([
             }
         };
 
-    function Class(arg1, arg2, arg3, arg4) {
-        var args = parseArgs(arg1, arg2, arg3, arg4),
+    function Class(arg1, arg2, arg3) {
+        function getConstructor() {
+            var publicDefinitions = definitions[TYPE_PUBLIC];
+            return publicDefinitions && publicDefinitions.constructor ?
+                publicDefinitions.constructor :
+                null;
+        }
+
+        var args = parseArgs(arg1, arg2, arg3),
             namedConstructor,
             definitions = {},
             name = args.name,
             members = args.members,
-            constructor = args.constructor,
             prototype = args.prototype,
+            constructor = getConstructor(),
             proxyConstructor = function () {
                 var publics = this,
                     secrets = getSecrets(publics);
@@ -45,7 +52,7 @@ define([
                 defineProperties(secrets.protecteds, definitions[TYPE_PROTECTED]);
 
                 if (constructor) {
-                    constructor.apply(secrets.privates, arguments);
+                    constructor.apply(publics, arguments);
                 }
             };
 
@@ -86,22 +93,24 @@ define([
             };
         });
 
-        defineProperties(namedConstructor.prototype, definitions[TYPE_PUBLIC]);
+        defineProperties(namedConstructor.prototype, definitions[TYPE_PUBLIC], function (name) {
+            return name !== "constructor";
+        });
 
-        namedConstructor.extend = function (arg1, arg2, arg3, arg4) {
-            var args = parseArgs(arg1, arg2, arg3, arg4),
-                childConstructor = args.constructor || constructor;
+        namedConstructor.extend = function (arg1, arg2, arg3) {
+            var args = parseArgs(arg1, arg2, arg3);
 
             return new Class(
                 args.name,
-                args.members,
-                function () {
-                    defineProperties(this.protecteds, definitions[TYPE_PROTECTED]);
+                util.extend({
+                    "public constructor": function () {
+                        defineProperties(this.protecteds, definitions[TYPE_PROTECTED]);
 
-                    if (childConstructor) {
-                        childConstructor.apply(this, arguments);
+                        //if (this.constructor) {
+                        //    this.constructor.apply(this, arguments);
+                        //}
                     }
-                },
+                }, args.members),
                 namedConstructor.prototype
             );
         };
@@ -109,27 +118,19 @@ define([
         return namedConstructor;
     }
 
-    function parseArgs(arg1, arg2, arg3, arg4) {
+    function parseArgs(arg1, arg2, arg3) {
         var name = arg1,
             members = arg2,
-            constructor = arg3,
-            prototype = arg4;
+            prototype = arg3;
 
         if (util.isPlainObject(name)) {
-            constructor = members;
             members = name;
-            name = null;
-        }
-
-        if (util.isFunction(name)) {
-            constructor = name;
             name = null;
         }
 
         return {
             name: name || "anonymous",
             members: members || {},
-            constructor: constructor,
             prototype: prototype || {}
         };
     }
@@ -148,9 +149,11 @@ define([
         definer(object, name, data);
     }
 
-    function defineProperties(object, definitions) {
+    function defineProperties(object, definitions, filter) {
         util.each(definitions, function (definition, name) {
-            defineProperty(object, name, definition);
+            if (!filter || filter(name)) {
+                defineProperty(object, name, definition);
+            }
         });
     }
 
