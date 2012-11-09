@@ -67,331 +67,337 @@ define([
             expect(Clarence.name).to.equal("Clarence");
         });
 
-        describe("protected properties", function () {
-            it("should be able to define a data descriptor", function () {
-                var World = new Class({
-                    "protected": {
-                        "descriptor iAmEnclosed": {
-                            value: 7
-                        }
-                    },
-                    "public": {
-                        "testIt": function () {
-                            expect(this.protecteds.iAmEnclosed).to.equal(7);
-                        }
-                    }
-                });
-
-                new World().testIt();
-            });
-
-            it("should be able to define an accessor descriptor with just a getter", function () {
-                var World = new Class({
-                    "protected": {
-                        "descriptor getMe": {
-                            get: function () {
-                                return 21;
-                            }
-                        }
-                    },
-                    "public": {
-                        "testIt": function () {
-                            expect(this.protecteds.getMe).to.equal(21);
-                        }
-                    }
-                });
-
-                new World().testIt();
-            });
-
-            it("should be able to define an accessor descriptor with just a setter", function () {
-                var World = new Class({
-                    "protected": {
-                        "descriptor setMe": {
-                            set: function (value) {
-                                this.hidden = value;
-                            }
-                        }
-                    },
-                    "public": {
-                        "testIt": function () {
-                            this.protecteds.setMe = 27;
-                            expect(this.hidden).to.equal(27);
-                        }
-                    }
-                });
-
-                new World().testIt();
-            });
-        });
-
-        describe("protected methods", function () {
-            it("should be able to add protected members", function () {
-                var Planet = new Class({
-                    "protected": {
-                        "addIt": function () {
-                            this.protecteds.prop = 72;
-                        }
-                    },
-                    "public": {
-                        "addIt": function () {
-                            this.protecteds.addIt();
-
-                            expect(this.protecteds.prop).to.equal(72);
-                        }
-                    }
-                });
-
-                new Planet().addIt();
-            });
-
-            it("should be able to add public members", function () {
-                var Planet = new Class({
-                    "protected": {
-                        "addIt": function () {
-                            this.publics.out = "and in";
-                        }
-                    },
-                    "public": {
-                        "addIt": function () {
-                            this.protecteds.addIt();
-                        }
-                    }
-                }),
-                    world = new Planet();
-
-                world.addIt();
-
-                expect(world.out).to.equal("and in");
-            });
-
-            it("should be able to add private members", function () {
-                var Planet = new Class({
-                    "protected": {
-                        "addIt": function () {
-                            this.privates.prop = 72;
-                        }
-                    },
-                    "public": {
-                        "addIt": function () {
-                            this.protecteds.addIt();
-
-                            expect(this.privates.prop).to.equal(72);
-                        }
-                    }
-                });
-
-                new Planet().addIt();
-            });
-        });
-
-        describe("public properties", function () {
-            it("should be able to define a data descriptor", function () {
-                var World = new Class({
-                    "public": {
-                        "descriptor iAmExposed": {
-                            value: 8
-                        }
-                    }
-                });
-
-                expect(new World().iAmExposed).to.equal(8);
-            });
-
-            it("should be able to define an accessor descriptor with just a getter", function () {
-                var World = new Class({
-                    "public": {
-                        "descriptor getMe": {
-                            get: function () {
-                                return 26;
-                            }
-                        }
-                    }
-                });
-
-                expect(new World().getMe).to.equal(26);
-            });
-
-            it("should be able to define an accessor descriptor with just a setter", function () {
-                var World = new Class({
-                    "public": {
-                        "descriptor setMe": {
-                            set: function (value) {
-                                this.hidden = value;
+        describe("protected members", function () {
+            describe("properties", function () {
+                it("should be able to define a data descriptor", function () {
+                    var World = new Class({
+                        "protected": {
+                            "descriptor iAmEnclosed": {
+                                value: 7
                             }
                         },
-                        "getMe": function () {
-                            return this.hidden;
-                        }
-                    }
-                }),
-                    world = new World();
-
-                world.setMe = 27;
-                expect(world.getMe()).to.equal(27);
-            });
-        });
-
-        describe("public methods", function () {
-            it("should be able to add protected members", function () {
-                var Planet = new Class({
-                    "public": {
-                        "addIt": function () {
-                            this.protecteds.prop = 72;
-
-                            expect(this.protecteds.prop).to.equal(72);
-                        }
-                    }
-                });
-
-                new Planet().addIt();
-            });
-
-            it("should be able to add public members", function () {
-                var Planet = new Class({
-                    "public": {
-                        "addIt": function () {
-                            this.publics.oot = "and aboot";
-                        }
-                    }
-                }),
-                    world = new Planet();
-
-                world.addIt();
-
-                expect(world.oot).to.equal("and aboot");
-            });
-
-            it("should be able to add private members", function () {
-                var Planet = new Class({
-                    "public": {
-                        "addIt": function () {
-                            this.privates.prop = 72;
-
-                            expect(this.privates.prop).to.equal(72);
-                        }
-                    }
-                });
-
-                new Planet().addIt();
-            });
-        });
-
-        describe("private properties", function () {
-            it("should be able to define a data descriptor", function () {
-                var World = new Class({
-                    "private": {
-                        "descriptor iAmEnclosed": {
-                            value: 7
-                        }
-                    },
-                    "public": {
-                        "testIt": function () {
-                            expect(this.privates.iAmEnclosed).to.equal(7);
-                        }
-                    }
-                });
-
-                new World().testIt();
-            });
-
-            it("should be able to define an accessor descriptor with just a getter", function () {
-                var World = new Class({
-                    "private": {
-                        "descriptor getMe": {
-                            get: function () {
-                                return 21;
+                        "public": {
+                            "testIt": function () {
+                                expect(this.protecteds.iAmEnclosed).to.equal(7);
                             }
                         }
-                    },
-                    "public": {
-                        "testIt": function () {
-                            expect(this.privates.getMe).to.equal(21);
-                        }
-                    }
+                    });
+
+                    new World().testIt();
                 });
 
-                new World().testIt();
-            });
-
-            it("should be able to define an accessor descriptor with just a setter", function () {
-                var World = new Class({
-                    "private": {
-                        "descriptor setMe": {
-                            set: function (value) {
-                                this.hidden = value;
+                it("should be able to define an accessor descriptor with just a getter", function () {
+                    var World = new Class({
+                        "protected": {
+                            "descriptor getMe": {
+                                get: function () {
+                                    return 21;
+                                }
+                            }
+                        },
+                        "public": {
+                            "testIt": function () {
+                                expect(this.protecteds.getMe).to.equal(21);
                             }
                         }
-                    },
-                    "public": {
-                        "testIt": function () {
-                            this.privates.setMe = 27;
-                            expect(this.hidden).to.equal(27);
-                        }
-                    }
+                    });
+
+                    new World().testIt();
                 });
 
-                new World().testIt();
+                it("should be able to define an accessor descriptor with just a setter", function () {
+                    var World = new Class({
+                        "protected": {
+                            "descriptor setMe": {
+                                set: function (value) {
+                                    this.hidden = value;
+                                }
+                            }
+                        },
+                        "public": {
+                            "testIt": function () {
+                                this.protecteds.setMe = 27;
+                                expect(this.hidden).to.equal(27);
+                            }
+                        }
+                    });
+
+                    new World().testIt();
+                });
+            });
+
+            describe("methods", function () {
+                it("should be able to add protected members", function () {
+                    var Planet = new Class({
+                        "protected": {
+                            "addIt": function () {
+                                this.protecteds.prop = 72;
+                            }
+                        },
+                        "public": {
+                            "addIt": function () {
+                                this.protecteds.addIt();
+
+                                expect(this.protecteds.prop).to.equal(72);
+                            }
+                        }
+                    });
+
+                    new Planet().addIt();
+                });
+
+                it("should be able to add public members", function () {
+                    var Planet = new Class({
+                        "protected": {
+                            "addIt": function () {
+                                this.publics.out = "and in";
+                            }
+                        },
+                        "public": {
+                            "addIt": function () {
+                                this.protecteds.addIt();
+                            }
+                        }
+                    }),
+                        world = new Planet();
+
+                    world.addIt();
+
+                    expect(world.out).to.equal("and in");
+                });
+
+                it("should be able to add private members", function () {
+                    var Planet = new Class({
+                        "protected": {
+                            "addIt": function () {
+                                this.privates.prop = 72;
+                            }
+                        },
+                        "public": {
+                            "addIt": function () {
+                                this.protecteds.addIt();
+
+                                expect(this.privates.prop).to.equal(72);
+                            }
+                        }
+                    });
+
+                    new Planet().addIt();
+                });
             });
         });
 
-        describe("private methods", function () {
-            it("should be able to add protected members", function () {
-                var Planet = new Class({
-                    "private": {
-                        "addIt": function () {
-                            this.protecteds.prop = 72;
+        describe("public members", function () {
+            describe("properties", function () {
+                it("should be able to define a data descriptor", function () {
+                    var World = new Class({
+                        "public": {
+                            "descriptor iAmExposed": {
+                                value: 8
+                            }
                         }
-                    },
-                    "public": {
-                        "addIt": function () {
-                            this.privates.addIt();
+                    });
 
-                            expect(this.protecteds.prop).to.equal(72);
-                        }
-                    }
+                    expect(new World().iAmExposed).to.equal(8);
                 });
 
-                new Planet().addIt();
-            });
-
-            it("should be able to add public members", function () {
-                var Planet = new Class({
-                    "private": {
-                        "addIt": function () {
-                            this.publics.oot = "and aboot";
+                it("should be able to define an accessor descriptor with just a getter", function () {
+                    var World = new Class({
+                        "public": {
+                            "descriptor getMe": {
+                                get: function () {
+                                    return 26;
+                                }
+                            }
                         }
-                    },
-                    "public": {
-                        "addIt": function () {
-                            this.privates.addIt();
-                        }
-                    }
-                }),
-                    world = new Planet();
+                    });
 
-                world.addIt();
-
-                expect(world.oot).to.equal("and aboot");
-            });
-
-            it("should be able to add private members", function () {
-                var Planet = new Class({
-                    "private": {
-                        "addIt": function () {
-                            this.privates.prop = 77;
-                        }
-                    },
-                    "public": {
-                        "addIt": function () {
-                            this.privates.addIt();
-
-                            expect(this.privates.prop).to.equal(77);
-                        }
-                    }
+                    expect(new World().getMe).to.equal(26);
                 });
 
-                new Planet().addIt();
+                it("should be able to define an accessor descriptor with just a setter", function () {
+                    var World = new Class({
+                        "public": {
+                            "descriptor setMe": {
+                                set: function (value) {
+                                    this.hidden = value;
+                                }
+                            },
+                            "getMe": function () {
+                                return this.hidden;
+                            }
+                        }
+                    }),
+                        world = new World();
+
+                    world.setMe = 27;
+                    expect(world.getMe()).to.equal(27);
+                });
+            });
+
+            describe("methods", function () {
+                it("should be able to add protected members", function () {
+                    var Planet = new Class({
+                        "public": {
+                            "addIt": function () {
+                                this.protecteds.prop = 72;
+
+                                expect(this.protecteds.prop).to.equal(72);
+                            }
+                        }
+                    });
+
+                    new Planet().addIt();
+                });
+
+                it("should be able to add public members", function () {
+                    var Planet = new Class({
+                        "public": {
+                            "addIt": function () {
+                                this.publics.oot = "and aboot";
+                            }
+                        }
+                    }),
+                        world = new Planet();
+
+                    world.addIt();
+
+                    expect(world.oot).to.equal("and aboot");
+                });
+
+                it("should be able to add private members", function () {
+                    var Planet = new Class({
+                        "public": {
+                            "addIt": function () {
+                                this.privates.prop = 72;
+
+                                expect(this.privates.prop).to.equal(72);
+                            }
+                        }
+                    });
+
+                    new Planet().addIt();
+                });
+            });
+        });
+
+        describe("private members", function () {
+            describe("properties", function () {
+                it("should be able to define a data descriptor", function () {
+                    var World = new Class({
+                        "private": {
+                            "descriptor iAmEnclosed": {
+                                value: 7
+                            }
+                        },
+                        "public": {
+                            "testIt": function () {
+                                expect(this.privates.iAmEnclosed).to.equal(7);
+                            }
+                        }
+                    });
+
+                    new World().testIt();
+                });
+
+                it("should be able to define an accessor descriptor with just a getter", function () {
+                    var World = new Class({
+                        "private": {
+                            "descriptor getMe": {
+                                get: function () {
+                                    return 21;
+                                }
+                            }
+                        },
+                        "public": {
+                            "testIt": function () {
+                                expect(this.privates.getMe).to.equal(21);
+                            }
+                        }
+                    });
+
+                    new World().testIt();
+                });
+
+                it("should be able to define an accessor descriptor with just a setter", function () {
+                    var World = new Class({
+                        "private": {
+                            "descriptor setMe": {
+                                set: function (value) {
+                                    this.hidden = value;
+                                }
+                            }
+                        },
+                        "public": {
+                            "testIt": function () {
+                                this.privates.setMe = 27;
+                                expect(this.hidden).to.equal(27);
+                            }
+                        }
+                    });
+
+                    new World().testIt();
+                });
+            });
+
+            describe("methods", function () {
+                it("should be able to add protected members", function () {
+                    var Planet = new Class({
+                        "private": {
+                            "addIt": function () {
+                                this.protecteds.prop = 72;
+                            }
+                        },
+                        "public": {
+                            "addIt": function () {
+                                this.privates.addIt();
+
+                                expect(this.protecteds.prop).to.equal(72);
+                            }
+                        }
+                    });
+
+                    new Planet().addIt();
+                });
+
+                it("should be able to add public members", function () {
+                    var Planet = new Class({
+                        "private": {
+                            "addIt": function () {
+                                this.publics.oot = "and aboot";
+                            }
+                        },
+                        "public": {
+                            "addIt": function () {
+                                this.privates.addIt();
+                            }
+                        }
+                    }),
+                        world = new Planet();
+
+                    world.addIt();
+
+                    expect(world.oot).to.equal("and aboot");
+                });
+
+                it("should be able to add private members", function () {
+                    var Planet = new Class({
+                        "private": {
+                            "addIt": function () {
+                                this.privates.prop = 77;
+                            }
+                        },
+                        "public": {
+                            "addIt": function () {
+                                this.privates.addIt();
+
+                                expect(this.privates.prop).to.equal(77);
+                            }
+                        }
+                    });
+
+                    new Planet().addIt();
+                });
             });
         });
 
