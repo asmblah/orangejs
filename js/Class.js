@@ -38,10 +38,9 @@ define([
         }
 
         var args = parseArgs(arg1, arg2, arg3),
-            namedConstructor,
-            definitions,
             name = args.name,
             members = args.members,
+            definitions = parseDefinitions(members),
             prototype = args.prototype,
             proxyConstructor = function () {
                 var constructor = getConstructor(),
@@ -54,14 +53,11 @@ define([
                 if (constructor) {
                     constructor.apply(secrets.privates, arguments);
                 }
-            };
-
-        namedConstructor = namedFunction(proxyConstructor, name);
+            },
+            namedConstructor = namedFunction(proxyConstructor, name);
 
         namedConstructor.prototype = Object.create(prototype);
         namedConstructor.prototype.constructor = namedConstructor;
-
-        definitions = parseDefinitions(members);
 
         defineProperties(namedConstructor.prototype, definitions[TYPE_PUBLIC], function (name) {
             return name !== "constructor";
