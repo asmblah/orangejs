@@ -91,6 +91,20 @@ define([
 
                     new World().testIt();
                 });
+
+                it("should allow writing to data properties", function () {
+                    var World = new Class({
+                        "protected write-to-me": 1,
+                        "public testIt": function () {
+                            this["write-to-me"] = 2;
+                        }
+                    }),
+                        world = new World();
+
+                    expect(function () {
+                        world.testIt();
+                    }).to.not.throw();
+                });
             });
 
             describe("methods", function () {
@@ -190,6 +204,17 @@ define([
                     world.setMe = 27;
                     expect(world.getMe()).to.equal(27);
                 });
+
+                it("should allow writing to data properties", function () {
+                    var World = new Class({
+                        "public write-to-me": 1
+                    }),
+                        world = new World();
+
+                    expect(function () {
+                        world["write-to-me"] = 2;
+                    }).to.not.throw();
+                });
             });
 
             describe("methods", function () {
@@ -276,6 +301,20 @@ define([
                     });
 
                     new World().testIt();
+                });
+
+                it("should allow writing to data properties", function () {
+                    var World = new Class({
+                        "private write-to-me": 1,
+                        "public testIt": function () {
+                            this["write-to-me"] = 2;
+                        }
+                    }),
+                        world = new World();
+
+                    expect(function () {
+                        world.testIt();
+                    }).to.not.throw();
                 });
             });
 

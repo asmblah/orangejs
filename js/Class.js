@@ -13,7 +13,10 @@ define([
         secretsMap = new WeakMap(),
         propertyDefiners = {
             "data": function (object, name, data) {
-                Object.defineProperty(object, name, { value: wrap(data) });
+                Object.defineProperty(object, name, {
+                    value: wrap(data),
+                    writable: true
+                });
             },
             "descriptor": function (object, name, data) {
                 if (data.value) {
