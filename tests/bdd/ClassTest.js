@@ -328,7 +328,7 @@ define([
             });
         });
 
-        /*describe("constructor", function () {
+        describe("constructor", function () {
             it("should not be called if no instances are created", function () {
                 var constructor = sinon.spy(),
                     Silent = new Class({
@@ -361,16 +361,20 @@ define([
                 expect(constructor).to.have.been.calledWith("arrrg1", 72);
             });
 
-            it("should be called on an object with access to its privates", function () {
-                var Galvanize = new Class({
-                    "private a-matter-of-privacy": 5
-                }, function () {
-                    expect(this).to.have.property("a-matter-of-privacy");
-                });
+            it("should be called on the object's privates object", function () {
+                var privates,
+                    Galvanize = new Class({
+                        "public constructor": function () {
+                            privates = this;
+                        },
+                        "private a-matter-of-privacy": 5
+                    });
 
                 new Galvanize();
+
+                expect(privates).to.have.property("a-matter-of-privacy");
             });
-        });*/
+        });
 
         describe("classes derived by extend()", function () {
             it("should create objects that are instances of that class", function () {
@@ -472,7 +476,7 @@ define([
                 new Derived().tryIt();
             });
 
-            /*it("should call the derived class' constructor if specified", function () {
+            it("should call the derived class' constructor if specified", function () {
                 var Super = new Class(),
                     constructor = sinon.spy(),
                     Derived = Super.extend({
@@ -503,7 +507,7 @@ define([
                     obj = new Derived();
 
                 expect(constructor).to.have.been.calledOnce;
-            });*/
+            });
         });
     });
 });
