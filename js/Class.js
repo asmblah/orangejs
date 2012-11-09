@@ -7,7 +7,10 @@ define([
 ) {
     "use strict";
 
-    var privatesMap = new WeakMap(),
+    var TYPE_PRIVATE = "private",
+        TYPE_PROTECTED = "protected",
+        TYPE_PUBLIC = "public",
+        secretsMap = new WeakMap(),
         propertyDefiners = {
             "data": function (object, name, data) {
                 Object.defineProperty(object, name, { value: wrap(data) });
@@ -26,58 +29,115 @@ define([
             }
         };
 
-    function Class(members, prototype) {
-        var constructor = function () {
-            var publics = this,
-                privates = getPrivates(publics),
-                protecteds = privates.protecteds;
+    function Class(arg1, arg2, arg3, arg4) {
+        var args = parseArgs(arg1, arg2, arg3, arg4),
+            namedConstructor,
+            definitions = {},
+            name = args.name,
+            members = args.members,
+            constructor = args.constructor,
+            prototype = args.prototype,
+            proxyConstructor = function () {
+                var publics = this,
+                    secrets = getSecrets(publics);
 
-            util.each(members["private"], function (data, name) {
-                defineProperty(privates, name, data);
-            });
+                defineProperties(secrets.privates, definitions[TYPE_PRIVATE]);
+                defineProperties(secrets.protecteds, definitions[TYPE_PROTECTED]);
 
-            util.each(members["protected"], function (data, name) {
-                defineProperty(protecteds, name, data);
-            });
+                if (constructor) {
+                    constructor.apply(secrets.privates, arguments);
+                }
+            };
 
-            if (members.hasOwnProperty("constructor") && util.isFunction(members.constructor)) {
-                members.constructor.apply(privates, arguments);
+        namedConstructor = namedFunction(proxyConstructor, name);
+
+        namedConstructor.prototype = Object.create(prototype);
+        namedConstructor.prototype.constructor = namedConstructor;
+
+        util.each(members, function (data, definition) {
+            var parts = definition.match(/^([^\s]+)(?:\s+([^\s]+))?(?:\s+([^\s]+))?$/),
+                visibility,
+                type,
+                name;
+
+            if (!parts) {
+                throw new Error("Invalid property definition: '" + definition + "'");
             }
-        },
-            klass,
-            name;
 
-        members = members || {};
-        name = members.name || "anonymous";
-        klass = namedFunction(constructor, name);
+            visibility = parts[1];
+            type = parts[2];
+            name = parts[3];
 
-        if (prototype) {
-            klass.prototype = prototype;
-            prototype.constructor = klass;
-        }
+            if (visibility !== TYPE_PRIVATE && visibility !== TYPE_PROTECTED && visibility !== TYPE_PUBLIC) {
+                name = type;
+                type = visibility;
+                visibility = TYPE_PRIVATE;
+            }
 
-        util.each(members["public"], function (data, name) {
-            defineProperty(klass.prototype, name, data);
+            if (!propertyDefiners.hasOwnProperty(type)) {
+                name = type;
+                type = "data";
+            }
+
+            definitions[visibility] = definitions[visibility] || {};
+            definitions[visibility][name] = {
+                type: type,
+                data: data
+            };
         });
 
-        klass.extend = function (childMembers) {
-            return new Class(util.extend({}, members, childMembers), Object.create(klass.prototype));
+        defineProperties(namedConstructor.prototype, definitions[TYPE_PUBLIC]);
+
+        namedConstructor.extend = function (arg1, arg2, arg3, arg4) {
+            var args = parseArgs(arg1, arg2, arg3, arg4),
+                childConstructor = args.constructor || constructor;
+
+            return new Class(
+                args.name,
+                args.members,
+                function () {
+                    defineProperties(this.protecteds, definitions[TYPE_PROTECTED]);
+
+                    if (childConstructor) {
+                        childConstructor.apply(this, arguments);
+                    }
+                },
+                namedConstructor.prototype
+            );
         };
 
-        return klass;
+        return namedConstructor;
     }
 
-    function defineProperty(object, name, data) {
-        var definer,
-            parts = name.match(/([^\s]+)\s+(.*)/),
-            type;
+    function parseArgs(arg1, arg2, arg3, arg4) {
+        var name = arg1,
+            members = arg2,
+            constructor = arg3,
+            prototype = arg4;
 
-        if (!parts) {
-            type = "data";
-        } else {
-            type = parts[1];
-            name = parts[2];
+        if (util.isPlainObject(name)) {
+            constructor = members;
+            members = name;
+            name = null;
         }
+
+        if (util.isFunction(name)) {
+            constructor = name;
+            name = null;
+        }
+
+        return {
+            name: name || "anonymous",
+            members: members || {},
+            constructor: constructor,
+            prototype: prototype || {}
+        };
+    }
+
+    function defineProperty(object, name, definition) {
+        var definer,
+            type = definition.type,
+            data = definition.data;
 
         definer = propertyDefiners[type];
 
@@ -88,23 +148,34 @@ define([
         definer(object, name, data);
     }
 
-    function getPrivates(publics) {
-        var protecteds,
-            privates = privatesMap.get(publics);
+    function defineProperties(object, definitions) {
+        util.each(definitions, function (definition, name) {
+            defineProperty(object, name, definition);
+        });
+    }
 
-        if (!privates) {
+    function getSecrets(publics) {
+        var privates,
+            protecteds,
+            secrets = secretsMap.get(publics);
+
+        if (!secrets) {
             protecteds = Object.create(publics);
             privates = Object.create(protecteds);
+            secrets = {
+                protecteds: protecteds,
+                privates: privates
+            };
 
             protecteds.protecteds = protecteds;
             protecteds.publics = publics;
             privates.privates = privates;
             privates.protecteds = protecteds;
 
-            privatesMap.set(publics, privates);
+            secretsMap.set(publics, secrets);
         }
 
-        return privates;
+        return secrets;
     }
 
     function namedFunction(parent, name) {
@@ -114,7 +185,7 @@ define([
 
     function wrap(value) {
         return util.isFunction(value) ? function () {
-            return value.apply(getPrivates(this), arguments);
+            return value.apply(getSecrets(this).privates, arguments);
         } : value;
     }
 
