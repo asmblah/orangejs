@@ -11,23 +11,49 @@ define([
         TYPE_PROTECTED = "protected",
         TYPE_PUBLIC = "public",
         secretsMap = new WeakMap(),
+        propertiesMap = new WeakMap(),
         propertyDefiners = {
             "data": function (object, name, data) {
-                Object.defineProperty(object, name, {
-                    value: wrap(data),
+                propertyDefiners["descriptor"](object, name, {
+                    value: data,
                     writable: true
                 });
             },
             "descriptor": function (object, name, data) {
                 if (data.value) {
-                    data.value = wrap(data.value);
+                    data = (function (data) {
+                        // TODO: Possible issue here as we really need a 2D map using both "object" and "this" as keys
+                        return {
+                            get: function () {
+                                var properties = propertiesMap.get(object);
+                                if (!properties) {
+                                    properties = {};
+                                    propertiesMap.set(object, properties);
+                                }
+                                if (!properties[name]) {
+                                    properties[name] = wrap(data.value);
+                                }
+                                return properties[name];
+                            },
+                            set: function (value) {
+                                var properties = propertiesMap.get(object);
+                                if (!properties) {
+                                    properties = {};
+                                    propertiesMap.set(object, properties);
+                                }
+                                properties[name] = value;
+                            }
+                        };
+                    }(data));
                 }
+
                 if (data.get) {
                     data.get = wrap(data.get);
                 }
                 if (data.set) {
                     data.set = wrap(data.set);
                 }
+
                 Object.defineProperty(object, name, data);
             }
         };
@@ -74,12 +100,14 @@ define([
                 args.name,
                 util.extend({}, args.members, {
                     "public constructor": function () {
+                        var constructor = getConstructor();
+
                         defineProperties(this.protecteds, definitions[TYPE_PROTECTED]);
 
                         if (childDefinitions[TYPE_PUBLIC] && childDefinitions[TYPE_PUBLIC].constructor) {
                             childDefinitions[TYPE_PUBLIC].constructor.data.apply(this, arguments);
-                        } else {
-                            proxyConstructor.apply(this, arguments);
+                        } else if (constructor) {
+                            constructor.apply(this, arguments);
                         }
                     }
                 }),

@@ -105,6 +105,27 @@ define([
                         world.testIt();
                     }).to.not.throw();
                 });
+
+                it("should be writable from privates object", function () {
+                    var privates,
+                        Planet = new Class({
+                            "public getPrivates": function () {
+                                privates = this;
+                            }
+                        }),
+                        Earth = Planet.extend({
+                            "public getValue": function () {
+                                return this.value;
+                            },
+                            "protected value": 6
+                        }),
+                        earth = new Earth();
+
+                    earth.getPrivates();
+                    privates.value = 12;
+
+                    expect(earth.getValue()).to.equal(12);
+                });
             });
 
             describe("methods", function () {
@@ -214,6 +235,22 @@ define([
                     expect(function () {
                         world["write-to-me"] = 2;
                     }).to.not.throw();
+                });
+
+                it("should be writable from privates object", function () {
+                    var privates,
+                        Planet = new Class({
+                            "public value": 7,
+                            "public getPrivates": function () {
+                                privates = this;
+                            }
+                        }),
+                        planet = new Planet();
+
+                    planet.getPrivates();
+                    privates.value = 9;
+
+                    expect(planet.value).to.equal(9);
                 });
             });
 
