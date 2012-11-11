@@ -46,145 +46,6 @@ define([
             expect(Clarence.name).to.equal("Clarence");
         });
 
-        describe("protected members", function () {
-            describe("properties", function () {
-                it("should be able to define a data descriptor", function () {
-                    var World = new Class({
-                        "protected descriptor iAmEnclosed": {
-                            value: 7
-                        },
-                        "public testIt": function () {
-                            expect(this.protecteds.iAmEnclosed).to.equal(7);
-                        }
-                    });
-
-                    new World().testIt();
-                });
-
-                it("should be able to define an accessor descriptor with just a getter", function () {
-                    var World = new Class({
-                        "protected descriptor getMe": {
-                            get: function () {
-                                return 21;
-                            }
-                        },
-                        "public testIt": function () {
-                            expect(this.protecteds.getMe).to.equal(21);
-                        }
-                    });
-
-                    new World().testIt();
-                });
-
-                it("should be able to define an accessor descriptor with just a setter", function () {
-                    var World = new Class({
-                        "protected descriptor setMe": {
-                            set: function (value) {
-                                this.hidden = value;
-                            }
-                        },
-                        "public testIt": function () {
-                            this.protecteds.setMe = 27;
-                            expect(this.hidden).to.equal(27);
-                        }
-                    });
-
-                    new World().testIt();
-                });
-
-                it("should allow writing to data properties", function () {
-                    var World = new Class({
-                        "protected write-to-me": 1,
-                        "public testIt": function () {
-                            this["write-to-me"] = 2;
-                        }
-                    }),
-                        world = new World();
-
-                    expect(function () {
-                        world.testIt();
-                    }).to.not.throw();
-                });
-
-                it("should be writable from privates object", function () {
-                    var privates,
-                        Planet = new Class({
-                            "public getPrivates": function () {
-                                privates = this;
-                            }
-                        }),
-                        Earth = Planet.extend({
-                            "public getValue": function () {
-                                return this.value;
-                            },
-                            "protected value": 6
-                        }),
-                        earth = new Earth();
-
-                    earth.getPrivates();
-                    privates.value = 12;
-
-                    expect(earth.getValue()).to.equal(12);
-                });
-            });
-
-            describe("methods", function () {
-                it("should be able to add protected members", function () {
-                    var Planet = new Class({
-                        "protected addIt": function () {
-                            this.protecteds.prop = 72;
-                        },
-                        "public addIt": function () {
-                            this.protecteds.addIt();
-
-                            expect(this.protecteds.prop).to.equal(72);
-                        }
-                    });
-
-                    new Planet().addIt();
-                });
-
-                it("should be able to add public members", function () {
-                    var Planet = new Class({
-                        "protected addIt": function () {
-                            this.publics.out = "and in";
-                        },
-                        "public addIt": function () {
-                            this.protecteds.addIt();
-                        }
-                    }),
-                        world = new Planet();
-
-                    world.addIt();
-
-                    expect(world.out).to.equal("and in");
-                });
-
-                it("should be able to modify private members", function () {
-                    var Planet = new Class({
-                        "private descriptor prop": {
-                            get: function () {
-                                return this.test;
-                            },
-                            set: function (value) {
-                                this.test = value + 1;
-                            }
-                        },
-                        "protected addIt": function () {
-                            this.prop = 72;
-                        },
-                        "public addIt": function () {
-                            this.protecteds.addIt();
-
-                            expect(this.prop).to.equal(73);
-                        }
-                    });
-
-                    new Planet().addIt();
-                });
-            });
-        });
-
         describe("public members", function () {
             describe("properties", function () {
                 it("should be able to define a data descriptor", function () {
@@ -255,23 +116,12 @@ define([
             });
 
             describe("methods", function () {
-                it("should be able to add protected members", function () {
+                it("should be able to modify public members", function () {
                     var Planet = new Class({
                         "public addIt": function () {
-                            this.protecteds.prop = 72;
-
-                            expect(this.protecteds.prop).to.equal(72);
-                        }
-                    });
-
-                    new Planet().addIt();
-                });
-
-                it("should be able to add public members", function () {
-                    var Planet = new Class({
-                        "public addIt": function () {
-                            this.publics.oot = "and aboot";
-                        }
+                            this.oot = "and aboot";
+                        },
+                        "public oot": "side"
                     }),
                         world = new Planet();
 
@@ -280,13 +130,173 @@ define([
                     expect(world.oot).to.equal("and aboot");
                 });
 
+                it("should be able to modify protected members", function () {
+                    var Planet = new Class({
+                        "public addIt": function () {
+                            this.prop = 72;
+
+                            expect(this.prop).to.equal(72);
+                        },
+                        "protected prop": 0
+                    });
+
+                    new Planet().addIt();
+                });
+
                 it("should be able to add private members", function () {
                     var Planet = new Class({
                         "public addIt": function () {
-                            this.privates.prop = 72;
+                            this.prop = 72;
 
-                            expect(this.privates.prop).to.equal(72);
+                            expect(this.prop).to.equal(72);
+                        },
+                        "private prop": 0
+                    });
+
+                    new Planet().addIt();
+                });
+            });
+        });
+
+        describe("protected members", function () {
+            describe("properties", function () {
+                it("should be able to define a data descriptor", function () {
+                    var World = new Class({
+                        "protected descriptor iAmEnclosed": {
+                            value: 7
+                        },
+                        "public testIt": function () {
+                            expect(this.iAmEnclosed).to.equal(7);
                         }
+                    });
+
+                    new World().testIt();
+                });
+
+                it("should be able to define an accessor descriptor with just a getter", function () {
+                    var World = new Class({
+                        "protected descriptor getMe": {
+                            get: function () {
+                                return 21;
+                            }
+                        },
+                        "public testIt": function () {
+                            expect(this.getMe).to.equal(21);
+                        }
+                    });
+
+                    new World().testIt();
+                });
+
+                it("should be able to define an accessor descriptor with just a setter", function () {
+                    var World = new Class({
+                        "protected descriptor setMe": {
+                            set: function (value) {
+                                this.hidden = value;
+                            }
+                        },
+                        "public testIt": function () {
+                            this.setMe = 27;
+                            expect(this.hidden).to.equal(27);
+                        }
+                    });
+
+                    new World().testIt();
+                });
+
+                it("should allow writing to data properties", function () {
+                    var World = new Class({
+                        "protected write-to-me": 1,
+                        "public testIt": function () {
+                            this["write-to-me"] = 2;
+                        }
+                    }),
+                        world = new World();
+
+                    expect(function () {
+                        world.testIt();
+                    }).to.not.throw();
+                });
+
+                it("should be writable from privates object", function () {
+                    var privates,
+                        Planet = new Class({
+                            "public getPrivates": function () {
+                                privates = this;
+                            }
+                        }),
+                        Earth = Planet.extend({
+                            "public getValue": function () {
+                                return this.value;
+                            },
+                            "protected value": 6
+                        }),
+                        earth = new Earth();
+
+                    earth.getPrivates();
+                    privates.value = 12;
+
+                    expect(earth.getValue()).to.equal(12);
+                });
+
+                it("should shadow a public property with the same name", function () {
+                    var Fun = new Class({
+                        "public value": 1,
+                        "protected value": 2,
+                        "public getValue": function () {
+                            return this.value;
+                        }
+                    });
+
+                    expect(new Fun().getValue()).to.equal(2);
+                });
+            });
+
+            describe("methods", function () {
+                it("should be able to modify public members", function () {
+                    var Planet = new Class({
+                        "public addIt": function () {
+                            this.addIt();
+                        },
+                        "public out": "and about",
+                        "protected addIt": function () {
+                            this.out = "and in";
+                        }
+                    }),
+                        world = new Planet();
+
+                    world.addIt();
+
+                    expect(world.out).to.equal("and in");
+                });
+
+                it("should be able to modify protected members", function () {
+                    var Planet = new Class({
+                        "public addIt": function () {
+                            this.addIt();
+
+                            expect(this.prop).to.equal(72);
+                        },
+                        "protected addIt": function () {
+                            this.prop = 72;
+                        },
+                        "protected prop": 2
+                    });
+
+                    new Planet().addIt();
+                });
+
+                it("should be able to modify private members", function () {
+                    var Planet = new Class({
+                        "public addIt": function () {
+                            this.addIt();
+
+                            expect(this.prop).to.equal(64);
+                        },
+                        "protected addIt": function () {
+                            this.prop = 64;
+                        },
+                        "private prop": 2
                     });
 
                     new Planet().addIt();
@@ -298,11 +308,11 @@ define([
             describe("properties", function () {
                 it("should be able to define a data descriptor", function () {
                     var World = new Class({
+                        "public testIt": function () {
+                            expect(this.iAmEnclosed).to.equal(7);
+                        },
                         "private descriptor iAmEnclosed": {
                             value: 7
-                        },
-                        "public testIt": function () {
-                            expect(this.privates.iAmEnclosed).to.equal(7);
                         }
                     });
 
@@ -311,13 +321,13 @@ define([
 
                 it("should be able to define an accessor descriptor with just a getter", function () {
                     var World = new Class({
+                        "public testIt": function () {
+                            expect(this.getMe).to.equal(21);
+                        },
                         "private descriptor getMe": {
                             get: function () {
                                 return 21;
                             }
-                        },
-                        "public testIt": function () {
-                            expect(this.privates.getMe).to.equal(21);
                         }
                     });
 
@@ -326,14 +336,14 @@ define([
 
                 it("should be able to define an accessor descriptor with just a setter", function () {
                     var World = new Class({
+                        "public testIt": function () {
+                            this.setMe = 27;
+                            expect(this.hidden).to.equal(27);
+                        },
                         "private descriptor setMe": {
                             set: function (value) {
                                 this.hidden = value;
                             }
-                        },
-                        "public testIt": function () {
-                            this.privates.setMe = 27;
-                            expect(this.hidden).to.equal(27);
                         }
                     });
 
@@ -356,28 +366,14 @@ define([
             });
 
             describe("methods", function () {
-                it("should be able to add protected members", function () {
+                it("should be able to modify public members", function () {
                     var Planet = new Class({
-                        "private addIt": function () {
-                            this.protecteds.prop = 72;
-                        },
                         "public addIt": function () {
-                            this.privates.addIt();
-
-                            expect(this.protecteds.prop).to.equal(72);
-                        }
-                    });
-
-                    new Planet().addIt();
-                });
-
-                it("should be able to add public members", function () {
-                    var Planet = new Class({
-                        "private addIt": function () {
-                            this.publics.oot = "and aboot";
+                            this.addIt();
                         },
-                        "public addIt": function () {
-                            this.privates.addIt();
+                        "public oot": "side",
+                        "private addIt": function () {
+                            this.oot = "and aboot";
                         }
                     }),
                         world = new Planet();
@@ -387,16 +383,33 @@ define([
                     expect(world.oot).to.equal("and aboot");
                 });
 
-                it("should be able to add private members", function () {
+                it("should be able to modify protected members", function () {
                     var Planet = new Class({
-                        "private addIt": function () {
-                            this.privates.prop = 77;
-                        },
                         "public addIt": function () {
-                            this.privates.addIt();
+                            this.addIt();
 
-                            expect(this.privates.prop).to.equal(77);
+                            expect(this.prop).to.equal(72);
+                        },
+                        "protected prop": 0,
+                        "private addIt": function () {
+                            this.prop = 72;
                         }
+                    });
+
+                    new Planet().addIt();
+                });
+
+                it("should be able to modify private members", function () {
+                    var Planet = new Class({
+                        "public addIt": function () {
+                            this.addIt();
+
+                            expect(this.prop).to.equal(77);
+                        },
+                        "private addIt": function () {
+                            this.prop = 77;
+                        },
+                        "private prop": 0
                     });
 
                     new Planet().addIt();
@@ -453,136 +466,355 @@ define([
         });
 
         describe("classes derived by extend()", function () {
-            it("should create objects that are instances of that class", function () {
-                var Short = new Class(),
-                    Long = Short.extend();
+            describe("with one parent", function () {
+                it("should create objects that are instances of that class", function () {
+                    var Short = new Class(),
+                        Long = Short.extend();
 
-                expect(new Long()).to.be.an.instanceOf(Long);
-            });
+                    expect(new Long()).to.be.an.instanceOf(Long);
+                });
 
-            it("should create objects that are instances of the parent class", function () {
-                var Animal = new Class("Animal"),
-                    Human = Animal.extend();
+                it("should create objects that are instances of the parent class", function () {
+                    var Animal = new Class("Animal"),
+                        Human = Animal.extend();
 
-                expect(new Human()).to.be.an.instanceOf(Animal);
-            });
+                    expect(new Human()).to.be.an.instanceOf(Animal);
+                });
 
-            it("should not be the same as the class being extended", function () {
-                var Before = new Class(),
-                    After = Before.extend();
+                it("should not be the same as the class being extended", function () {
+                    var Before = new Class(),
+                        After = Before.extend();
 
-                expect(After).to.not.equal(Before);
-            });
+                    expect(After).to.not.equal(Before);
+                });
 
-            it("should have a name matching the specified name", function () {
-                var Rodent = new Class(),
-                    Hamster = Rodent.extend("Hamster");
+                it("should have a name matching the specified name", function () {
+                    var Rodent = new Class(),
+                        Hamster = Rodent.extend("Hamster");
 
-                expect(Hamster.name).to.equal("Hamster");
-            });
+                    expect(Hamster.name).to.equal("Hamster");
+                });
 
-            it("should create objects that refer to the derived class as their constructor", function () {
-                var Canine = new Class(),
-                    Dog = Canine.extend();
+                it("should create objects that refer to the derived class as their constructor", function () {
+                    var Canine = new Class(),
+                        Dog = Canine.extend();
 
-                expect(new Dog().constructor).to.equal(Dog);
-            });
+                    expect(new Dog().constructor).to.equal(Dog);
+                });
 
-            it("should create objects that have access to the parent class' protected members", function () {
-                var Super = new Class({
-                    "protected a-protected-prop": 7
-                }),
-                    Derived = Super.extend({
-                        "public tryIt": function () {
-                            expect(this).to.have.property("a-protected-prop");
-                        }
+                describe("public members", function () {
+
+                });
+
+                describe("protected members", function () {
+                    describe("properties", function () {
+                        describe("data", function () {
+                            describe("when there is a public property with the same name", function () {
+                                it("should shadow public property when read from parent class", function () {
+                                    var Parent = new Class({
+                                        "public data value": 1,
+                                        "public getValue": function () {
+                                            return this.value;
+                                        }
+                                    }),
+                                        Child = Parent.extend({
+                                            "protected data value": 2
+                                        });
+
+                                    expect(new Child().getValue()).to.equal(2);
+                                });
+
+                                it("should shadow public property when read from derived class", function () {
+                                    var Parent = new Class({
+                                        "public data value": 1
+                                    }),
+                                        Child = Parent.extend({
+                                            "protected data value": 2,
+                                            "public getValue": function () {
+                                                return this.value;
+                                            }
+                                        });
+
+                                    expect(new Child().getValue()).to.equal(2);
+                                });
+                            });
+                        });
+
+                        describe("descriptor", function () {
+                            describe("when there is a public property with the same name", function () {
+                                it("should shadow public property when read from parent class", function () {
+                                    var Parent = new Class({
+                                        "public descriptor value": { get: function () { return 1; } },
+                                        "public getValue": function () {
+                                            return this.value;
+                                        }
+                                    }),
+                                        Child = Parent.extend({
+                                            "protected descriptor value": { get: function () { return 2; } }
+                                        });
+
+                                    expect(new Child().getValue()).to.equal(2);
+                                });
+
+                                it("should shadow public property when read from derived class", function () {
+                                    var Parent = new Class({
+                                        "public descriptor value": { get: function () { return 1; } }
+                                    }),
+                                        Child = Parent.extend({
+                                            "protected descriptor value": { get: function () { return 2; } },
+                                            "public getValue": function () {
+                                                return this.value;
+                                            }
+                                        });
+
+                                    expect(new Child().getValue()).to.equal(2);
+                                });
+                            });
+                        });
                     });
+                });
 
-                new Derived().tryIt();
-            });
+                describe("private members", function () {
+                    describe("properties", function () {
+                        describe("data", function () {
+                            describe("when there is a public property with the same name", function () {
+                                it("should shadow public property when read from parent class", function () {
+                                    var Parent = new Class({
+                                        "public data value": 1,
+                                        "public getValue": function () {
+                                            return this.value;
+                                        }
+                                    }),
+                                        Child = Parent.extend({
+                                            "private data value": 2
+                                        });
 
-            it("should create objects that have access to the parent class' public members", function () {
-                var Super = new Class({
-                    "public a-public-prop": 7
-                }),
-                    Derived = Super.extend();
+                                    expect(new Child().getValue()).to.equal(2);
+                                });
 
-                expect(new Derived()).to.have.property("a-public-prop");
-            });
+                                it("should shadow public property when read from derived class", function () {
+                                    var Parent = new Class({
+                                        "public data value": 1
+                                    }),
+                                        Child = Parent.extend({
+                                            "private data value": 2,
+                                            "public getValue": function () {
+                                                return this.value;
+                                            }
+                                        });
 
-            it("should create objects that do not have access to the parent class' private members", function () {
-                var Super = new Class({
-                    "private in-the-parent": {}
-                }),
-                    Derived = Super.extend();
+                                    expect(new Child().getValue()).to.equal(2);
+                                });
+                            });
+                        });
 
-                expect(new Derived()).to.not.have.property("in-the-parent");
-            });
+                        describe("descriptor", function () {
+                            describe("when there is a public property with the same name", function () {
+                                it("should shadow public property when read from parent class", function () {
+                                    var Parent = new Class({
+                                        "public descriptor value": { get: function () { return 1; } },
+                                        "public getValue": function () {
+                                            return this.value;
+                                        }
+                                    }),
+                                        Child = Parent.extend({
+                                            "private descriptor value": { get: function () { return 2; } }
+                                        });
 
-            it("should create objects that have access to the derived class' public members", function () {
-                var Super = new Class(),
-                    Derived = Super.extend({
+                                    expect(new Child().getValue()).to.equal(2);
+                                });
+
+                                it("should shadow public property when read from derived class", function () {
+                                    var Parent = new Class({
+                                        "public descriptor value": { get: function () { return 1; } }
+                                    }),
+                                        Child = Parent.extend({
+                                            "private descriptor value": { get: function () { return 2; } },
+                                            "public getValue": function () {
+                                                return this.value;
+                                            }
+                                        });
+
+                                    expect(new Child().getValue()).to.equal(2);
+                                });
+                            });
+                        });
+                    });
+                });
+
+                it("should create objects that have access to the parent class' protected members", function () {
+                    var Super = new Class({
+                        "protected a-protected-prop": 7
+                    }),
+                        Derived = Super.extend({
+                            "public tryIt": function () {
+                                expect(this).to.have.property("a-protected-prop");
+                            }
+                        });
+
+                    new Derived().tryIt();
+                });
+
+                it("should create objects that have access to the parent class' public members", function () {
+                    var Super = new Class({
                         "public a-public-prop": 7
-                    });
-
-                expect(new Derived()).to.have.property("a-public-prop");
-            });
-
-            it("should create objects that have access to the derived class' protected members", function () {
-                var Super = new Class(),
-                    Derived = Super.extend({
-                        "protected a-protected-prop": 7,
-                        "public tryIt": function () {
-                            expect(this).to.have.property("a-protected-prop");
-                        }
-                    });
-
-                new Derived().tryIt();
-            });
-
-            it("should create objects that do have access to the derived class' private members", function () {
-                var Super = new Class(),
-                    Derived = Super.extend({
-                        "private in-the-derivative": {},
-                        "public tryIt": function () {
-                            expect(this).to.have.property("in-the-derivative");
-                        }
-                    });
-
-                new Derived().tryIt();
-            });
-
-            it("should call the derived class' constructor if specified", function () {
-                var Super = new Class(),
-                    constructor = sinon.spy(),
-                    Derived = Super.extend({
-                        "public constructor": constructor
                     }),
-                    obj = new Derived();
+                        Derived = Super.extend();
 
-                expect(constructor).to.have.been.called;
+                    expect(new Derived()).to.have.property("a-public-prop");
+                });
+
+                it("should create objects that do not have access to the parent class' private members", function () {
+                    var Super = new Class({
+                        "private in-the-parent": {}
+                    }),
+                        Derived = Super.extend();
+
+                    expect(new Derived()).to.not.have.property("in-the-parent");
+                });
+
+                it("should create objects that have access to the derived class' public members", function () {
+                    var Super = new Class(),
+                        Derived = Super.extend({
+                            "public a-public-prop": 7
+                        });
+
+                    expect(new Derived()).to.have.property("a-public-prop");
+                });
+
+                it("should create objects that have access to the derived class' protected members", function () {
+                    var Super = new Class(),
+                        Derived = Super.extend({
+                            "protected a-protected-prop": 7,
+                            "public tryIt": function () {
+                                expect(this).to.have.property("a-protected-prop");
+                            }
+                        });
+
+                    new Derived().tryIt();
+                });
+
+                it("should create objects that do have access to the derived class' private members", function () {
+                    var Super = new Class(),
+                        Derived = Super.extend({
+                            "private in-the-derivative": {},
+                            "public tryIt": function () {
+                                expect(this).to.have.property("in-the-derivative");
+                            }
+                        });
+
+                    new Derived().tryIt();
+                });
+
+                it("should call the derived class' constructor if specified", function () {
+                    var Super = new Class(),
+                        constructor = sinon.spy(),
+                        Derived = Super.extend({
+                            "public constructor": constructor
+                        }),
+                        obj = new Derived();
+
+                    expect(constructor).to.have.been.called;
+                });
+
+                it("should call the derived class' constructor with arguments if specified", function () {
+                    var Super = new Class(),
+                        constructor = sinon.spy(),
+                        Derived = Super.extend({
+                            "public constructor": constructor
+                        }),
+                        obj = new Derived(2, 7);
+
+                    expect(constructor).to.have.been.calledWith(2, 7);
+                });
+
+                it("should call the parent class' constructor if specified when child class does not define one", function () {
+                    var constructor = sinon.spy(),
+                        Super = new Class({
+                            "public constructor": constructor
+                        }),
+                        Derived = Super.extend(),
+                        obj = new Derived();
+
+                    expect(constructor).to.have.been.calledOnce;
+                });
             });
 
-            it("should call the derived class' constructor with arguments if specified", function () {
-                var Super = new Class(),
-                    constructor = sinon.spy(),
-                    Derived = Super.extend({
-                        "public constructor": constructor
-                    }),
-                    obj = new Derived(2, 7);
+            describe("with two parents", function () {
+                it("should create objects that are instances of that class", function () {
+                    var Short = new Class(),
+                        Medium = Short.extend(),
+                        Long = Medium.extend();
 
-                expect(constructor).to.have.been.calledWith(2, 7);
-            });
+                    expect(new Long()).to.be.an.instanceOf(Long);
+                });
 
-            it("should call the parent class' constructor if specified when child class does not define one", function () {
-                var constructor = sinon.spy(),
-                    Super = new Class({
-                        "public constructor": constructor
-                    }),
-                    Derived = Super.extend(),
-                    obj = new Derived();
+                it("should create objects that are instances of the parent class", function () {
+                    var Short = new Class(),
+                        Medium = Short.extend(),
+                        Long = Medium.extend();
 
-                expect(constructor).to.have.been.calledOnce;
+                    expect(new Long()).to.be.an.instanceOf(Medium);
+                });
+
+                it("should create objects that are instances of the parent's parent class", function () {
+                    var Short = new Class(),
+                        Medium = Short.extend(),
+                        Long = Medium.extend();
+
+                    expect(new Long()).to.be.an.instanceOf(Short);
+                });
+
+                it("should not be the same as the class being extended", function () {
+                    var Short = new Class(),
+                        Medium = Short.extend(),
+                        Long = Medium.extend();
+
+                    expect(Long).to.not.equal(Medium);
+                });
+
+                it("should not be the same as the parent of the class being extended", function () {
+                    var Short = new Class(),
+                        Medium = Short.extend(),
+                        Long = Medium.extend();
+
+                    expect(Long).to.not.equal(Short);
+                });
+
+                describe("protected members", function () {
+                    describe("properties", function () {
+                        describe("data", function () {
+                            describe("when there is a public property with the same name", function () {
+                                it("should shadow public property when read from parent class");
+
+                                it("should shadow public property when read from derived class");
+                            });
+                        });
+
+                        describe("descriptor", function () {
+                            describe("when there is a public property with the same name", function () {
+                                it("should not attempt to redefine the same property twice", function () {
+                                    var DocumentFragment = new Class({
+                                        "protected nodeName": "#documentFragment"
+                                    }),
+                                        Document = DocumentFragment.extend({
+                                            "public createElement": function () {}
+                                        });
+
+                                    expect(function () {
+                                        new Document().createElement();
+                                        new Document();
+                                        new Document();
+                                    }).to.not.throw;
+                                });
+
+                                it("should shadow public property when read from parent class");
+
+                                it("should shadow public property when read from derived class");
+                            });
+                        });
+                    });
+                });
             });
         });
     });

@@ -10,7 +10,7 @@ define([
     var TYPE_PRIVATE = "private",
         TYPE_PROTECTED = "protected",
         TYPE_PUBLIC = "public",
-        secretsMap = new WeakMap(),
+        privatesMap = new WeakMap(),
         propertiesMap = new WeakMap(),
         propertyDefiners = {
             "data": function (object, name, data) {
@@ -74,13 +74,13 @@ define([
             proxyConstructor = function () {
                 var constructor = getConstructor(),
                     publics = this,
-                    secrets = getSecrets(publics);
+                    privates = getPrivates(publics);
 
-                defineProperties(secrets.privates, definitions[TYPE_PRIVATE]);
-                defineProperties(secrets.protecteds, definitions[TYPE_PROTECTED]);
+                defineProperties(privates, definitions[TYPE_PRIVATE]);
+                defineProperties(privates, definitions[TYPE_PROTECTED]);
 
                 if (constructor) {
-                    constructor.apply(secrets.privates, arguments);
+                    constructor.apply(privates, arguments);
                 }
             },
             namedConstructor = namedFunction(proxyConstructor, name);
@@ -102,7 +102,7 @@ define([
                     "public constructor": function () {
                         var constructor = getConstructor();
 
-                        defineProperties(this.protecteds, definitions[TYPE_PROTECTED]);
+                        defineProperties(this, definitions[TYPE_PROTECTED]);
 
                         if (childDefinitions[TYPE_PUBLIC] && childDefinitions[TYPE_PUBLIC].constructor) {
                             childDefinitions[TYPE_PUBLIC].constructor.data.apply(this, arguments);
@@ -199,28 +199,17 @@ define([
         });
     }
 
-    function getSecrets(publics) {
-        var privates,
-            protecteds,
-            secrets = secretsMap.get(publics);
+    function getPrivates(publics) {
+        var privates = privatesMap.get(publics);
 
-        if (!secrets) {
-            protecteds = Object.create(publics);
-            privates = Object.create(protecteds);
-            secrets = {
-                protecteds: protecteds,
-                privates: privates
-            };
+        if (!privates) {
+            privates = Object.create(publics);
 
-            protecteds.protecteds = protecteds;
-            protecteds.publics = publics;
-            privates.privates = privates;
-            privates.protecteds = protecteds;
-
-            secretsMap.set(publics, secrets);
+            privatesMap.set(publics, privates);
+            privatesMap.set(privates, privates);
         }
 
-        return secrets;
+        return privates;
     }
 
     function namedFunction(parent, name) {
@@ -230,7 +219,7 @@ define([
 
     function wrap(value) {
         return util.isFunction(value) ? function () {
-            return value.apply(getSecrets(this).privates, arguments);
+            return value.apply(getPrivates(this), arguments);
         } : value;
     }
 
