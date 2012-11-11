@@ -65,6 +65,42 @@ define([
         });
 
         describe("get()", function () {
+            it("should retrieve the value with the specified key if the key is a string", function () {
+                var map = new WeakMap(),
+                    key = "test";
+
+                map.set(key, 2);
+
+                expect(map.get(key)).to.equal(2);
+            });
+
+            it("should retrieve the value with the specified key if the key is a number", function () {
+                var map = new WeakMap(),
+                    key = 6;
+
+                map.set(key, 3);
+
+                expect(map.get(key)).to.equal(3);
+            });
+
+            it("should retrieve the value with the specified key if the key is NaN", function () {
+                var map = new WeakMap(),
+                    key = util.global.NaN;
+
+                map.set(key, 4);
+
+                expect(map.get(key)).to.equal(4);
+            });
+
+            it("should retrieve the value with the specified key if the key is undefined", function () {
+                var map = new WeakMap(),
+                    key = undefined;
+
+                map.set(key, 4);
+
+                expect(map.get(key)).to.equal(4);
+            });
+
             it("should retrieve the value with the specified key if the key is a plain object", function () {
                 var map = new WeakMap(),
                     key = {};

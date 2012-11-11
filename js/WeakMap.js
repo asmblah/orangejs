@@ -6,6 +6,7 @@ define([
     "use strict";
 
     var key = {},
+        namespaces = {},
         nextIndex = 0;
 
     // ES6 WeakMap
@@ -41,22 +42,34 @@ define([
     }
 
     function namespace(obj) {
-        var values = obj.valueOf(key),
+        var values,
+            valueOf;
+
+        if (typeof obj !== "object") {
+            values = namespaces[obj];
+
+            if (!values) {
+                values = {};
+                namespaces[obj] = values;
+            }
+        } else {
+            values = obj.valueOf(key);
             valueOf = obj.valueOf;
 
-        if (values === obj) {
-            values = {};
+            if (values === obj) {
+                values = {};
 
-            Object.defineProperty(obj, "valueOf", {
-                configurable: true,
-                enumerable: false,
-                value: function (request) {
-                    if (request === key) {
-                        return values;
+                Object.defineProperty(obj, "valueOf", {
+                    configurable: true,
+                    enumerable: false,
+                    value: function (request) {
+                        if (request === key) {
+                            return values;
+                        }
+                        return valueOf.apply(this, arguments);
                     }
-                    return valueOf.apply(this, arguments);
-                }
-            });
+                });
+            }
         }
 
         return values;
