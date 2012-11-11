@@ -933,7 +933,7 @@ define([
                                         new Document().createElement();
                                         new Document();
                                         new Document();
-                                    }).to.not.throw;
+                                    }).to.not.throw();
                                 });
 
                                 it("should shadow public property when read from parent class");
