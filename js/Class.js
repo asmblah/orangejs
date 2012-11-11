@@ -22,7 +22,7 @@ define([
                 });
             },
             "descriptor": function (object, name, data) {
-                if (data.value) {
+                if (data.hasOwnProperty("value")) {
                     data = (function (data) {
                         // TODO: Possible issue here as we really need a 2D map using both "object" and "this" as keys
                         return {

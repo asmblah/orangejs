@@ -108,10 +108,26 @@ define([
                     }).to.not.throw();
                 });
 
-                it("should be writable from privates object", function () {
+                it("should be writable from privates object when default value is a number", function () {
                     var privates,
                         Planet = new Class({
                             "public value": 7,
+                            "public getPrivates": function () {
+                                privates = this;
+                            }
+                        }),
+                        planet = new Planet();
+
+                    planet.getPrivates();
+                    privates.value = 9;
+
+                    expect(planet.value).to.equal(9);
+                });
+
+                it("should be writable from privates object when default value is null", function () {
+                    var privates,
+                        Planet = new Class({
+                            "public value": null,
                             "public getPrivates": function () {
                                 privates = this;
                             }
