@@ -56,7 +56,7 @@ define([
             values = obj.valueOf(key);
             valueOf = obj.valueOf;
 
-            if (values === obj) {
+            if (values === obj || !obj.hasOwnProperty("valueOf")) {
                 values = {};
 
                 Object.defineProperty(obj, "valueOf", {

@@ -202,6 +202,16 @@ define([
 
                 expect(map.get(key, 29)).to.equal(undefined);
             });
+
+            it("should not be possible to use an object that extends an existing key as that key", function () {
+                var map = new WeakMap(),
+                    key = {},
+                    inheritedKey = Object.create(key);
+
+                map.set(key, 7);
+
+                expect(map.get(inheritedKey)).to.not.equal(7);
+            });
         });
 
         describe("has()", function () {
