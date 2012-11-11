@@ -1,8 +1,10 @@
 define([
     "js/util",
+    "js/Exception",
     "js/WeakMap"
 ], function (
     util,
+    Exception,
     WeakMap
 ) {
     "use strict";
@@ -74,7 +76,13 @@ define([
             proxyConstructor = function () {
                 var constructor = getConstructor(),
                     publics = this,
-                    privates = getPrivates(publics);
+                    privates;
+
+                if (!(this instanceof namedConstructor)) {
+                    throw new Exception("Constructor must be called on an instance of its class");
+                }
+
+                privates = getPrivates(publics);
 
                 defineProperties(privates, definitions[TYPE_PRIVATE]);
                 defineProperties(privates, definitions[TYPE_PROTECTED]);
@@ -149,7 +157,7 @@ define([
                 name;
 
             if (!parts) {
-                throw new Error("Invalid property definition: '" + definition + "'");
+                throw new Exception("Invalid property definition: '" + definition + "'");
             }
 
             visibility = parts[1];
@@ -185,7 +193,7 @@ define([
         definer = propertyDefiners[type];
 
         if (!definer) {
-            throw new Error("Tried to define a property with an invalid type '" + type + "'");
+            throw new Exception("Tried to define a property with an invalid type '" + type + "'");
         }
 
         definer(object, name, data);

@@ -1,11 +1,13 @@
 define([
     "vendor/chai/chai",
     "vendor/sinon/sinon",
-    "js/Class"
+    "js/Class",
+    "js/Exception"
 ], function (
     chai,
     sinon,
-    Class
+    Class,
+    Exception
 ) {
     "use strict";
 
@@ -44,6 +46,14 @@ define([
             var Clarence = new Class("Clarence");
 
             expect(Clarence.name).to.equal("Clarence");
+        });
+
+        it("should throw an Exception if called without the 'new' keyword", function () {
+            var Leaf = Class({});
+
+            expect(function () {
+                Leaf();
+            }).to.throw(Exception);
         });
 
         describe("public members", function () {
