@@ -239,16 +239,134 @@ define([
                     expect(earth.getValue()).to.equal(12);
                 });
 
-                it("should shadow a public property with the same name", function () {
-                    var Fun = new Class({
-                        "public value": 1,
-                        "protected value": 2,
-                        "public getValue": function () {
-                            return this.value;
-                        }
+                it("should allow a property with name 'data' of implicit type data", function () {
+                    var AntiInception = new Class({
+                        "public data": 7
                     });
 
-                    expect(new Fun().getValue()).to.equal(2);
+                    expect(new AntiInception().data).to.equal(7);
+                });
+
+                it("should allow a property with name 'descriptor' of implicit type data", function () {
+                    var AntiInception = new Class({
+                        "public descriptor": 7
+                    });
+
+                    expect(new AntiInception().descriptor).to.equal(7);
+                });
+
+                it("should allow a property with name 'data' of explicit type data", function () {
+                    var AntiInception = new Class({
+                        "public data data": 7
+                    });
+
+                    expect(new AntiInception().data).to.equal(7);
+                });
+
+                it("should allow a property with name 'descriptor' of explicit type data", function () {
+                    var AntiInception = new Class({
+                        "public data descriptor": 7
+                    });
+
+                    expect(new AntiInception().descriptor).to.equal(7);
+                });
+
+                describe("when shadowing a public property with the same name", function () {
+                    describe("for internal reads", function () {
+                        it("should be used when default value is a number", function () {
+                            var Fun = new Class({
+                                "public value": 1,
+                                "protected value": 2,
+                                "public getValue": function () {
+                                    return this.value;
+                                }
+                            });
+
+                            expect(new Fun().getValue()).to.equal(2);
+                        });
+
+                        it("should be used when default value is null", function () {
+                            var Fun = new Class({
+                                "public value": 1,
+                                "protected value": null,
+                                "public getValue": function () {
+                                    return this.value;
+                                }
+                            });
+
+                            expect(new Fun().getValue()).to.equal(null);
+                        });
+                    });
+
+                    describe("for internal writes", function () {
+                        it("should be used when default value is a number", function () {
+                            var Fun = new Class({
+                                "public value": 1,
+                                "protected value": 2,
+                                "public getValue": function () {
+                                    return this.value;
+                                },
+                                "public setValue": function (value) {
+                                    this.value = value;
+                                }
+                            }),
+                                fun = new Fun();
+
+                            fun.setValue(8);
+                            expect(fun.getValue()).to.equal(8);
+                        });
+
+                        it("should be used when default value is null", function () {
+                            var Fun = new Class({
+                                "public value": 1,
+                                "protected value": null,
+                                "public getValue": function () {
+                                    return this.value;
+                                },
+                                "public setValue": function (value) {
+                                    this.value = value;
+                                }
+                            }),
+                                fun = new Fun();
+
+                            fun.setValue(8);
+                            expect(fun.getValue()).to.equal(8);
+                        });
+
+                        it("should prevent writes to public, shadowed property when default value is a number", function () {
+                            var Fun = new Class({
+                                "public value": 1,
+                                "protected value": 2,
+                                "public getValue": function () {
+                                    return this.value;
+                                },
+                                "public setValue": function (value) {
+                                    this.value = value;
+                                }
+                            }),
+                                fun = new Fun();
+
+                            fun.setValue(8);
+                            expect(fun.value).to.equal(1);
+                        });
+
+                        it("should prevent writes to public, shadowed property when default value is null", function () {
+                            var Fun = new Class({
+                                "public value": 1,
+                                "protected value": null,
+                                "public getValue": function () {
+                                    return this.value;
+                                },
+                                "public setValue": function (value) {
+                                    this.value = value;
+                                }
+                            }),
+                                fun = new Fun();
+
+                            fun.setValue(8);
+                            expect(fun.value).to.equal(1);
+                        });
+                    });
                 });
             });
 

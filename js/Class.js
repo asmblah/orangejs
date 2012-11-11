@@ -162,7 +162,7 @@ define([
                 visibility = TYPE_PRIVATE;
             }
 
-            if (!propertyDefiners.hasOwnProperty(type)) {
+            if (!propertyDefiners.hasOwnProperty(type) || typeof name === "undefined") {
                 name = type;
                 type = "data";
             }
