@@ -262,6 +262,63 @@ define([
                     new Planet().addIt();
                 });
             });
+
+            describe("readonly members", function () {
+                it("should allow reading the value internally", function () {
+                    var ReadMe = new Class({
+                        "public getValue": function () {
+                            return this.value;
+                        },
+                        "public readonly value": 6
+                    });
+
+                    expect(new ReadMe().getValue()).to.equal(6);
+                });
+
+                it("should allow reading the value externally", function () {
+                    var ReadMe = new Class({
+                        "public readonly value": 7
+                    });
+
+                    expect(new ReadMe().value).to.equal(7);
+                });
+
+                it("should not allow modifying the value internally", function () {
+                    var ReadMe = new Class({
+                        "public modifyIt": function () {
+                            this.value = 4;
+                        },
+                        "public readonly value": 7
+                    });
+
+                    expect(function () {
+                        new ReadMe().modifyIt();
+                    }).to.throw(TypeError);
+                });
+
+                it("should not allow modifying the value externally", function () {
+                    var ReadMe = new Class({
+                        "public readonly value": 7
+                    });
+
+                    expect(function () {
+                        new ReadMe().value = 6;
+                    }).to.throw(TypeError);
+                });
+
+                it("should allow modifying the value in the constructor", function () {
+                    var SetMeUp = new Class({
+                        "public constructor": function (value) {
+                            this.value = value;
+                        },
+                        "public readonly value": null
+                    });
+
+                    expect(function () {
+                        var setMeUp = new SetMeUp("start");
+                    }).to.not.throw();
+                });
+            });
         });
 
         describe("protected members", function () {

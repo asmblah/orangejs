@@ -68,6 +68,9 @@ define([
                     get: data
                 });
             },
+            "readonly": function (object, name, data) {
+                propertyDefiners["data"](object, name, data);
+            },
             "set": function (object, name, data) {
                 propertyDefiners["descriptor"](object, name, {
                     set: data
@@ -81,6 +84,23 @@ define([
             return publicDefinitions && publicDefinitions.constructor ?
                     publicDefinitions.constructor.data :
                     null;
+        }
+
+        function getReadOnlyDefinitions() {
+            var readOnlyDefinitions = {};
+
+            util.each(definitions, function (names, visibility) {
+                util.each(names, function (types, name) {
+                    if (types.hasOwnProperty("readonly")) {
+                        readOnlyDefinitions[name] = {
+                            value: types["readonly"],
+                            visibility: visibility
+                        };
+                    }
+                });
+            });
+
+            return readOnlyDefinitions;
         }
 
         var args = parseArgs(arg1, arg2, arg3),
@@ -105,6 +125,18 @@ define([
                 if (constructor) {
                     constructor.apply(privates, arguments);
                 }
+
+                util.each(getReadOnlyDefinitions(), function (data, name) {
+                    var value = data.value,
+                        visibility = data.visibility;
+
+                    Object.defineProperty(visibility === TYPE_PRIVATE ? privates : publics, name, {
+                        configurable: true,
+                        get: function () {
+                            return value;
+                        }
+                    });
+                });
             },
             namedConstructor = namedFunction(proxyConstructor, name);
 
