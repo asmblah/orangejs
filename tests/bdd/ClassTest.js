@@ -79,6 +79,55 @@ define([
         });
 
         describe("public members", function () {
+            it("should support defining a getter with 'get'", function () {
+                var Planet = new Class({
+                    "public constructor": function (diameterInKM) {
+                        this.diameterInKM = diameterInKM;
+                    },
+                    "public get circumference": function () {
+                        return Math.round(Math.PI * this.diameterInKM);
+                    },
+                    "private diameterInKM": null
+                }),
+                    earth = new Planet(12756.2);
+
+                expect(earth.circumference).to.equal(40075);
+            });
+
+            it("should support defining a setter with 'set'", function () {
+                var Planet = new Class({
+                    "public getNumberOfInhabitants": function () {
+                        return this.numberOfInhabitants;
+                    },
+                    "public set inhabitants": function (number) {
+                        this.numberOfInhabitants = number;
+                    },
+                    "private numberOfInhabitants": null
+                }),
+                    neptune = new Planet();
+
+                neptune.inhabitants = 27;
+
+                expect(neptune.getNumberOfInhabitants()).to.equal(27);
+            });
+
+            it("should support defining a getter with 'get' and a setter with 'set' for the same member", function () {
+                var Leaf = new Class({
+                    "public get greenness": function () {
+                        return this.greenness * 2;
+                    },
+                    "public set greenness": function (greenness) {
+                        this.greenness = greenness;
+                    },
+                    "private greenness": 0
+                }),
+                    leaf = new Leaf();
+
+                leaf.greenness = 20;
+
+                expect(leaf.greenness).to.equal(40);
+            });
+
             describe("properties", function () {
                 it("should be able to define a data descriptor", function () {
                     var World = new Class({

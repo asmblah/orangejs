@@ -56,7 +56,22 @@ define([
                     data.set = wrap(data.set);
                 }
 
+                data = util.extend({
+                    configurable: true,
+                    enumerable: false
+                }, Object.getOwnPropertyDescriptor(object, name), data);
+
                 Object.defineProperty(object, name, data);
+            },
+            "get": function (object, name, data) {
+                propertyDefiners["descriptor"](object, name, {
+                    get: data
+                });
+            },
+            "set": function (object, name, data) {
+                propertyDefiners["descriptor"](object, name, {
+                    set: data
+                });
             }
         };
 
@@ -182,21 +197,15 @@ define([
             }
 
             definitions[visibility] = definitions[visibility] || createHash();
-            definitions[visibility][name] = {
-                type: type,
-                data: data
-            };
+            definitions[visibility][name] = definitions[visibility][name] || createHash();
+            definitions[visibility][name][type] = data;
         }, { keys: true });
 
         return definitions;
     }
 
-    function defineProperty(object, name, definition) {
-        var definer,
-            type = definition.type,
-            data = definition.data;
-
-        definer = propertyDefiners[type];
+    function defineProperty(object, type, name, data) {
+        var definer = propertyDefiners[type];
 
         if (!definer) {
             throw new Exception("Tried to define a property with an invalid type '" + type + "'");
@@ -206,9 +215,11 @@ define([
     }
 
     function defineProperties(object, definitions, filter) {
-        util.each(definitions, function (definition, name) {
+        util.each(definitions, function (definitionTypes, name) {
             if (!filter || filter(name)) {
-                defineProperty(object, name, definition);
+                util.each(definitionTypes, function (data, type) {
+                    defineProperty(object, type, name, data);
+                });
             }
         }, { keys: true });
     }
