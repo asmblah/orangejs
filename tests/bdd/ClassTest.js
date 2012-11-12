@@ -249,7 +249,7 @@ define([
                     new Planet().addIt();
                 });
 
-                it("should be able to add private members", function () {
+                it("should be able to modify private members", function () {
                     var Planet = new Class({
                         "public addIt": function () {
                             this.prop = 72;
