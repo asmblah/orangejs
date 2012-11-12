@@ -130,11 +130,12 @@ define([
                     var value = data.value,
                         visibility = data.visibility;
 
-                    Object.defineProperty(visibility === TYPE_PRIVATE ? privates : publics, name, {
+                    Object.defineProperty(visibility === TYPE_PUBLIC ? publics : privates, name, {
                         configurable: true,
                         get: function () {
                             return value;
-                        }
+                        },
+                        set: undefined
                     });
                 });
             },
