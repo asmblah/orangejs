@@ -1,9 +1,11 @@
 define([
     "js/util",
+    "js/Enum",
     "js/Exception",
     "js/WeakMap"
 ], function (
     util,
+    Enum,
     Exception,
     WeakMap
 ) {
@@ -62,6 +64,11 @@ define([
                 }, Object.getOwnPropertyDescriptor(object, name), data);
 
                 Object.defineProperty(object, name, data);
+            },
+            "enum": function (object, name, data) {
+                var enumeration = Enum.fromArray(name, data);
+
+                enumeration.exposeIn(object);
             },
             "get": function (object, name, data) {
                 propertyDefiners["descriptor"](object, name, {

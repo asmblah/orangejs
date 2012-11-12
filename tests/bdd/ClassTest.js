@@ -2,11 +2,13 @@ define([
     "vendor/chai/chai",
     "vendor/sinon/sinon",
     "js/Class",
+    "js/Enum",
     "js/Exception"
 ], function (
     chai,
     sinon,
     Class,
+    Enum,
     Exception
 ) {
     "use strict";
@@ -126,6 +128,50 @@ define([
                 leaf.greenness = 20;
 
                 expect(leaf.greenness).to.equal(40);
+            });
+
+            describe("enum", function () {
+                it("should add the Enum to the object", function () {
+                    var DOM = new Class({
+                        "public enum NodeType": [
+                            "ELEMENT_NODE",
+                            "ATTRIBUTE_NODE",
+                            "TEXT_NODE",
+                            "CDATA_SECTION_NODE",
+                            "ENTITY_REFERENCE_NODE",
+                            "ENTITY_NODE",
+                            "PROCESSING_INSTRUCTION_NODE",
+                            "COMMENT_NODE",
+                            "DOCUMENT_NODE",
+                            "DOCUMENT_TYPE_NODE",
+                            "DOCUMENT_FRAGMENT_NODE",
+                            "NOTATION_NODE"
+                        ]
+                    });
+
+                    expect(new DOM().NodeType).to.be.an.instanceOf(Enum);
+                });
+
+                it("should add the Enum's first item to the object with value 1", function () {
+                    var DOM = new Class({
+                        "public enum NodeType": [
+                            "ELEMENT_NODE"
+                        ]
+                    });
+
+                    expect(new DOM().ELEMENT_NODE).to.equal(1);
+                });
+
+                it("should add the Enum's second item to the object with value 2", function () {
+                    var DOM = new Class({
+                        "public enum NodeType": [
+                            "ELEMENT_NODE",
+                            "ATTRIBUTE_NODE"
+                        ]
+                    });
+
+                    expect(new DOM().ATTRIBUTE_NODE).to.equal(2);
+                });
             });
 
             describe("properties", function () {
@@ -322,6 +368,59 @@ define([
         });
 
         describe("protected members", function () {
+            describe("enum", function () {
+                it("should add the Enum to the object", function () {
+                    var DOM = new Class({
+                        "public get": function () {
+                            return this;
+                        },
+                        "protected enum NodeType": [
+                            "ELEMENT_NODE",
+                            "ATTRIBUTE_NODE",
+                            "TEXT_NODE",
+                            "CDATA_SECTION_NODE",
+                            "ENTITY_REFERENCE_NODE",
+                            "ENTITY_NODE",
+                            "PROCESSING_INSTRUCTION_NODE",
+                            "COMMENT_NODE",
+                            "DOCUMENT_NODE",
+                            "DOCUMENT_TYPE_NODE",
+                            "DOCUMENT_FRAGMENT_NODE",
+                            "NOTATION_NODE"
+                        ]
+                    });
+
+                    expect(new DOM().get().NodeType).to.be.an.instanceOf(Enum);
+                });
+
+                it("should add the Enum's first item to the object with value 1", function () {
+                    var DOM = new Class({
+                        "public get": function () {
+                            return this;
+                        },
+                        "protected enum NodeType": [
+                            "ELEMENT_NODE"
+                        ]
+                    });
+
+                    expect(new DOM().get().ELEMENT_NODE).to.equal(1);
+                });
+
+                it("should add the Enum's second item to the object with value 2", function () {
+                    var DOM = new Class({
+                        "public get": function () {
+                            return this;
+                        },
+                        "protected enum NodeType": [
+                            "ELEMENT_NODE",
+                            "ATTRIBUTE_NODE"
+                        ]
+                    });
+
+                    expect(new DOM().get().ATTRIBUTE_NODE).to.equal(2);
+                });
+            });
+
             describe("properties", function () {
                 it("should be able to define a data descriptor", function () {
                     var World = new Class({
@@ -641,6 +740,59 @@ define([
         });
 
         describe("private members", function () {
+            describe("enum", function () {
+                it("should add the Enum to the object", function () {
+                    var DOM = new Class({
+                        "public get": function () {
+                            return this;
+                        },
+                        "private enum NodeType": [
+                            "ELEMENT_NODE",
+                            "ATTRIBUTE_NODE",
+                            "TEXT_NODE",
+                            "CDATA_SECTION_NODE",
+                            "ENTITY_REFERENCE_NODE",
+                            "ENTITY_NODE",
+                            "PROCESSING_INSTRUCTION_NODE",
+                            "COMMENT_NODE",
+                            "DOCUMENT_NODE",
+                            "DOCUMENT_TYPE_NODE",
+                            "DOCUMENT_FRAGMENT_NODE",
+                            "NOTATION_NODE"
+                        ]
+                    });
+
+                    expect(new DOM().get().NodeType).to.be.an.instanceOf(Enum);
+                });
+
+                it("should add the Enum's first item to the object with value 1", function () {
+                    var DOM = new Class({
+                        "public get": function () {
+                            return this;
+                        },
+                        "private enum NodeType": [
+                            "ELEMENT_NODE"
+                        ]
+                    });
+
+                    expect(new DOM().get().ELEMENT_NODE).to.equal(1);
+                });
+
+                it("should add the Enum's second item to the object with value 2", function () {
+                    var DOM = new Class({
+                        "public get": function () {
+                            return this;
+                        },
+                        "private enum NodeType": [
+                            "ELEMENT_NODE",
+                            "ATTRIBUTE_NODE"
+                        ]
+                    });
+
+                    expect(new DOM().get().ATTRIBUTE_NODE).to.equal(2);
+                });
+            });
+
             describe("properties", function () {
                 it("should be able to define a data descriptor", function () {
                     var World = new Class({
