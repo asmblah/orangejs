@@ -232,7 +232,7 @@ define([
     }
 
     function wrap(value) {
-        return util.isFunction(value) ? function () {
+        return util.isFunction(value) && !value.extend ? function () {
             return value.apply(getPrivates(this), arguments);
         } : value;
     }

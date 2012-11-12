@@ -161,6 +161,15 @@ define([
 
                     expect(planet.value).to.equal(9);
                 });
+
+                it("should not treat Classes as functions to wrap", function () {
+                    var Cinema = new Class(),
+                        Entertainment = new Class({
+                            "public Cinema": Cinema
+                        });
+
+                    expect(new Entertainment().Cinema).to.equal(Cinema);
+                });
             });
 
             describe("methods", function () {
