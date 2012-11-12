@@ -364,6 +364,17 @@ define([
                         var setMeUp = new SetMeUp("start");
                     }).to.not.throw();
                 });
+
+                it("should retain modifications made to the value in the constructor", function () {
+                    var Mods = new Class({
+                        "public constructor": function (value) {
+                            this.changeMe = value;
+                        },
+                        "public readonly changeMe": 4
+                    });
+
+                    expect(new Mods(72).changeMe).to.equal(72);
+                });
             });
         });
 
@@ -736,6 +747,20 @@ define([
                         var setMeUp = new SetMeUp("start");
                     }).to.not.throw();
                 });
+
+                it("should retain modifications made to the value in the constructor", function () {
+                    var Mods = new Class({
+                        "public constructor": function (value) {
+                            this.changeMe = value;
+                        },
+                        "public getPrivates": function () {
+                            return this;
+                        },
+                        "protected readonly changeMe": 4
+                    });
+
+                    expect(new Mods(73).getPrivates().changeMe).to.equal(73);
+                });
             });
         });
 
@@ -940,6 +965,20 @@ define([
                     expect(function () {
                         var setMeUp = new SetMeUp("start");
                     }).to.not.throw();
+                });
+
+                it("should retain modifications made to the value in the constructor", function () {
+                    var Mods = new Class({
+                        "public constructor": function (value) {
+                            this.changeMe = value;
+                        },
+                        "public getPrivates": function () {
+                            return this;
+                        },
+                        "private readonly changeMe": 4
+                    });
+
+                    expect(new Mods(74).getPrivates().changeMe).to.equal(74);
                 });
             });
         });

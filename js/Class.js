@@ -134,16 +134,11 @@ define([
                 }
 
                 util.each(getReadOnlyDefinitions(), function (data, name) {
-                    var value = data.value,
-                        visibility = data.visibility;
+                    var object = data.visibility === TYPE_PUBLIC ? Object.getPrototypeOf(publics) : privates;
 
-                    Object.defineProperty(visibility === TYPE_PUBLIC ? publics : privates, name, {
-                        configurable: true,
-                        get: function () {
-                            return value;
-                        },
-                        set: undefined
-                    });
+                    data = Object.getOwnPropertyDescriptor(object, name);
+                    data.set = undefined;
+                    Object.defineProperty(object, name, data);
                 });
             },
             namedConstructor = namedFunction(proxyConstructor, name);
