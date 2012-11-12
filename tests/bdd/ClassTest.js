@@ -56,6 +56,28 @@ define([
             }).to.throw(Exception);
         });
 
+        describe("Class.prototype", function () {
+            beforeEach(function () {
+                Class.prototype.prop = 6;
+            });
+
+            afterEach(function () {
+                delete Class.prototype.prop;
+            });
+
+            it("should be included in the prototype chain for Classes", function () {
+                var LampPost = new Class();
+
+                expect(new LampPost()).to.have.property("prop");
+            });
+
+            it("should throw an Exception if a non-Class instance or derivative is passed as prototype", function () {
+                expect(function () {
+                    var Tree = new Class("Tree", {}, {});
+                }).to.throw(Exception);
+            });
+        });
+
         describe("public members", function () {
             describe("properties", function () {
                 it("should be able to define a data descriptor", function () {

@@ -93,6 +93,12 @@ define([
             },
             namedConstructor = namedFunction(proxyConstructor, name);
 
+        if (!prototype) {
+            prototype = Class.prototype;
+        } else if (!(prototype instanceof Class)) {
+            throw new Exception("Prototype must be a Class");
+        }
+
         namedConstructor.prototype = Object.create(prototype);
         namedConstructor.prototype.constructor = namedConstructor;
 
@@ -143,7 +149,7 @@ define([
         return {
             name: name || "anonymous",
             members: members || {},
-            prototype: prototype || {}
+            prototype: prototype
         };
     }
 
