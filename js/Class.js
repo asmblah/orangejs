@@ -180,7 +180,7 @@ define([
                 type: type,
                 data: data
             };
-        });
+        }, { keys: true });
 
         return definitions;
     }
@@ -204,7 +204,7 @@ define([
             if (!filter || filter(name)) {
                 defineProperty(object, name, definition);
             }
-        });
+        }, { keys: true });
     }
 
     function getPrivates(publics) {

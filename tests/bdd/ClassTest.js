@@ -281,6 +281,14 @@ define([
                     expect(new AntiInception().descriptor).to.equal(7);
                 });
 
+                it("should allow a property with name 'length' of implicit type data", function () {
+                    var AntiInception = new Class({
+                        "public length": 7
+                    });
+
+                    expect(new AntiInception().length).to.equal(7);
+                });
+
                 it("should allow a property with name 'data' of explicit type data", function () {
                     var AntiInception = new Class({
                         "public data data": 7
@@ -295,6 +303,14 @@ define([
                     });
 
                     expect(new AntiInception().descriptor).to.equal(7);
+                });
+
+                it("should allow a property with name 'length' of explicit type data", function () {
+                    var AntiInception = new Class({
+                        "public data length": 7
+                    });
+
+                    expect(new AntiInception().length).to.equal(7);
                 });
 
                 describe("when shadowing a public property with the same name", function () {
