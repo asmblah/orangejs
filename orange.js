@@ -3,23 +3,30 @@ define({
         "js": "../../vendor/orangejs/js"
     }
 }, [
-    "js/Class",
-    "js/Enum",
-    "js/Exception",
-    "js/Map",
-    "js/shims"
+    "require",
+    "module",
+    "./js/shims"
 ], function (
-    Class,
-    Enum,
-    Exception,
-    Map
+    require,
+    module
 ) {
     "use strict";
 
-    return {
-        Class: Class,
-        Enum: Enum,
-        Exception: Exception,
-        Map: Map
-    };
+    var callback = module.defer();
+
+    require([
+        "./js/Class",
+        "./js/Enum",
+        "./js/Exception"
+    ], function (
+        Class,
+        Enum,
+        Exception
+    ) {
+        callback({
+            Class: Class,
+            Enum: Enum,
+            Exception: Exception
+        });
+    });
 });
