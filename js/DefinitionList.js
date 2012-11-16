@@ -1,10 +1,10 @@
 define([
-    "js/util",
-    "js/Definition/Data",
-    "js/Definition/Descriptor",
-    "js/Definition/Enum",
-    "js/Exception",
-    "js/Definition/ReadOnly"
+    "./util",
+    "./Definition/Data",
+    "./Definition/Descriptor",
+    "./Definition/Enum",
+    "./Exception",
+    "./Definition/ReadOnly"
 ], function (
     util,
     DataDefinition,

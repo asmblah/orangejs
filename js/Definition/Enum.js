@@ -1,7 +1,7 @@
 define([
-    "js/util",
-    "js/Definition",
-    "js/Enum"
+    "../util",
+    "../Definition",
+    "../Enum"
 ], function (
     util,
     Definition,

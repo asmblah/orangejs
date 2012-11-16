@@ -1,5 +1,5 @@
 define([
-    "js/util",
+    "./util",
     "require",
     "module"
 ], function (
@@ -41,7 +41,7 @@ define([
             var callback = module.defer();
 
             require([
-                "js/Map"
+                "./Map"
             ], function (
                 Map
             ) {

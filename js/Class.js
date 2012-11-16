@@ -1,8 +1,8 @@
 define([
-    "js/util",
-    "js/DefinitionList",
-    "js/Enum",
-    "js/Exception"
+    "./util",
+    "./DefinitionList",
+    "./Enum",
+    "./Exception"
 ], function (
     util,
     DefinitionList,

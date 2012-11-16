@@ -1,8 +1,4 @@
-define({
-    paths: {
-        "js": "../../vendor/orangejs/js"
-    }
-}, [
+define([
     "require",
     "module",
     "./js/shims"

@@ -1,6 +1,6 @@
 define([
-    "js/util",
-    "js/Definition/Data"
+    "../util",
+    "../Definition/Data"
 ], function (
     util,
     DataDefinition

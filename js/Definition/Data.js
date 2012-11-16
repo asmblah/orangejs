@@ -1,7 +1,7 @@
 define([
-    "js/util",
-    "js/Definition",
-    "js/TreeMap"
+    "../util",
+    "../Definition",
+    "../TreeMap"
 ], function (
     util,
     Definition,
