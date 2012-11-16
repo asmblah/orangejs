@@ -9,9 +9,9 @@ define([
         namespaces = {},
         nextIndex = 0;
 
-    // ES6 WeakMap
-    // - See https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/WeakMap
-    function WeakMap() {
+    // ES6 Map
+    // - See https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Map
+    function Map() {
         var index = nextIndex;
 
         nextIndex += 1;
@@ -75,5 +75,5 @@ define([
         return values;
     }
 
-    return WeakMap;
+    return Map;
 });

@@ -6,13 +6,13 @@ define({
     "js/Class",
     "js/Enum",
     "js/Exception",
-    "js/WeakMap",
+    "js/Map",
     "js/shims"
 ], function (
     Class,
     Enum,
     Exception,
-    WeakMap
+    Map
 ) {
     "use strict";
 
@@ -20,6 +20,6 @@ define({
         Class: Class,
         Enum: Enum,
         Exception: Exception,
-        WeakMap: WeakMap
+        Map: Map
     };
 });

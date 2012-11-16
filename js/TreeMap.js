@@ -1,13 +1,11 @@
 define([
-    "js/util",
-    "js/WeakMap"
+    "js/util"
 ], function (
-    util,
-    WeakMap
+    util
 ) {
     "use strict";
 
-    var privatesMap = new WeakMap();
+    var privatesMap = new util.global.Map();
 
     function getPrivates(object, defaults) {
         var privates = privatesMap.get(object);
@@ -22,7 +20,7 @@ define([
 
     function TreeMap() {
         var privates = getPrivates(this, {
-            keyMap: new WeakMap()
+            keyMap: new Map()
         });
     }
 
@@ -63,7 +61,7 @@ define([
             for (index = 0; index < keys.length - 1; index += 1) {
                 nextMap = map.get(keys[index]);
                 if (!nextMap) {
-                    nextMap = new WeakMap();
+                    nextMap = new Map();
                     map.set(keys[index], nextMap);
                 }
                 map = nextMap;

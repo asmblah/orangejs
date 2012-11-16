@@ -11,7 +11,7 @@ define([
 ) {
     "use strict";
 
-    var privatesMap = new util.global.WeakMap();
+    var privatesMap = new util.global.Map();
 
     function Class(arg1, arg2, arg3) {
         var args = parseArgs(arg1, arg2, arg3),

@@ -34,18 +34,18 @@ define([
         };
     }
 
-    // ES6 WeakMap
-    // - See https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/WeakMap
-    if (!global.WeakMap) {
+    // ES6 Map
+    // - See https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Map
+    if (!global.Map) {
         (function () {
             var callback = module.defer();
 
             require([
-                "js/WeakMap"
+                "js/Map"
             ], function (
-                WeakMap
+                Map
             ) {
-                global.WeakMap = WeakMap;
+                global.Map = Map;
                 callback();
             });
         }());
