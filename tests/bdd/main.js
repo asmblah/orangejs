@@ -28,7 +28,8 @@ require({
         cache: false
     }, [
         "./ClassTest",
-        "./MapTest"
+        "./MapTest",
+        "./OrangeJSTest"
     ], function () {
         mocha.run();
     });
