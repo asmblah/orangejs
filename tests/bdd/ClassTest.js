@@ -496,15 +496,13 @@ define([
                         Planet = new Class({
                             "public getPrivates": function () {
                                 privates = this;
-                            }
-                        }),
-                        Earth = Planet.extend({
+                            },
                             "public getValue": function () {
                                 return this.value;
                             },
                             "protected value": 6
                         }),
-                        earth = new Earth();
+                        earth = new Planet();
 
                     earth.getPrivates();
                     privates.value = 12;
@@ -1069,10 +1067,84 @@ define([
                 });
 
                 describe("public members", function () {
+                    describe("readonly members", function () {
+                        it("should allow reading the value internally", function () {
+                            var Parent = new Class({
+                                "public getValue": function () {
+                                    return this.value;
+                                },
+                                "public readonly value": 6
+                            }),
+                                ReadMe = Parent.extend();
 
+                            expect(new ReadMe().getValue()).to.equal(6);
+                        });
+
+                        it("should not allow modifying the value internally", function () {
+                            var Parent = new Class({
+                                "public modifyIt": function () {
+                                    this.value = 4;
+                                },
+                                "public readonly value": 7
+                            }),
+                                ReadMe = Parent.extend();
+
+                            expect(function () {
+                                new ReadMe().modifyIt();
+                            }).to.throw(TypeError);
+                        });
+
+                        it("should allow modifying the value in the constructor", function () {
+                            var Parent = new Class({
+                                "public constructor": function (value) {
+                                    this.value = value;
+                                },
+                                "public readonly value": null
+                            }),
+                                SetMeUp = Parent.extend();
+
+                            expect(function () {
+                                var setMeUp = new SetMeUp("start");
+                            }).to.not.throw();
+                        });
+
+                        it("should retain modifications made to the value in the constructor when read externally", function () {
+                            var Parent = new Class({
+                                "public constructor": function (value) {
+                                    this.changeMe = value;
+                                },
+                                "public getPrivates": function () {
+                                    return this;
+                                },
+                                "public readonly changeMe": 4
+                            }),
+                                Mods = Parent.extend();
+
+                            expect(new Mods(73).changeMe).to.equal(73);
+                        });
+
+                        it("should retain modifications made to the value in the constructor when read internally", function () {
+                            var Parent = new Class({
+                                "public constructor": function (value) {
+                                    this.changeMe = value;
+                                },
+                                "public getPrivates": function () {
+                                    return this;
+                                },
+                                "public readonly changeMe": 4
+                            }),
+                                Mods = Parent.extend();
+
+                            expect(new Mods(73).getPrivates().changeMe).to.equal(73);
+                        });
+                    });
                 });
 
                 describe("protected members", function () {
+                    describe("readonly members", function () {
+
+                    });
+
                     describe("properties", function () {
                         describe("data", function () {
                             describe("when there is a public property with the same name", function () {
@@ -1141,6 +1213,10 @@ define([
                 });
 
                 describe("private members", function () {
+                    describe("readonly members", function () {
+
+                    });
+
                     describe("properties", function () {
                         describe("data", function () {
                             describe("when there is a public property with the same name", function () {

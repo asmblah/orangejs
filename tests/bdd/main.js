@@ -7,7 +7,8 @@ require({
 }, [
     "require",
     "vendor/chai/chai",
-    "vendor/sinon-chai/lib/sinon-chai"
+    "vendor/sinon-chai/lib/sinon-chai",
+    "js/shims"
 ], function (
     require,
     chai,

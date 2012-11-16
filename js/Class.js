@@ -1,145 +1,53 @@
 define([
     "js/util",
+    "js/DefinitionList",
     "js/Enum",
-    "js/Exception",
-    "js/WeakMap"
+    "js/Exception"
 ], function (
     util,
+    DefinitionList,
     Enum,
-    Exception,
-    WeakMap
+    Exception
 ) {
     "use strict";
 
-    var TYPE_PRIVATE = "private",
-        TYPE_PROTECTED = "protected",
-        TYPE_PUBLIC = "public",
-        privatesMap = new WeakMap(),
-        propertiesMap = new WeakMap(),
-        propertyDefiners = {
-            "data": function (object, name, data) {
-                propertyDefiners["descriptor"](object, name, {
-                    value: data,
-                    writable: true
-                });
-            },
-            "descriptor": function (object, name, data) {
-                if (data.hasOwnProperty("value")) {
-                    data = (function (data) {
-                        // TODO: Possible issue here as we really need a 2D map using both "object" and "this" as keys
-                        return {
-                            get: function () {
-                                var properties = propertiesMap.get(object);
-                                if (!properties) {
-                                    properties = {};
-                                    propertiesMap.set(object, properties);
-                                }
-                                if (!properties[name]) {
-                                    properties[name] = wrap(data.value);
-                                }
-                                return properties[name];
-                            },
-                            set: function (value) {
-                                var properties = propertiesMap.get(object);
-                                if (!properties) {
-                                    properties = {};
-                                    propertiesMap.set(object, properties);
-                                }
-                                properties[name] = value;
-                            }
-                        };
-                    }(data));
-                }
-
-                if (data.get) {
-                    data.get = wrap(data.get);
-                }
-                if (data.set) {
-                    data.set = wrap(data.set);
-                }
-
-                data = util.extend({
-                    configurable: true,
-                    enumerable: false
-                }, Object.getOwnPropertyDescriptor(object, name), data);
-
-                Object.defineProperty(object, name, data);
-            },
-            "enum": function (object, name, data) {
-                var enumeration = Enum.fromArray(name, data);
-
-                enumeration.exposeIn(object);
-            },
-            "get": function (object, name, data) {
-                propertyDefiners["descriptor"](object, name, {
-                    get: data
-                });
-            },
-            "readonly": function (object, name, data) {
-                propertyDefiners["data"](object, name, data);
-            },
-            "set": function (object, name, data) {
-                propertyDefiners["descriptor"](object, name, {
-                    set: data
-                });
-            }
-        };
+    var privatesMap = new util.global.WeakMap();
 
     function Class(arg1, arg2, arg3) {
-        function getConstructor() {
-            var publicDefinitions = definitions[TYPE_PUBLIC];
-            return publicDefinitions && publicDefinitions.constructor ?
-                    publicDefinitions.constructor.data :
-                    null;
-        }
-
-        function getReadOnlyDefinitions() {
-            var readOnlyDefinitions = {};
-
-            util.each(definitions, function (names, visibility) {
-                util.each(names, function (types, name) {
-                    if (types.hasOwnProperty("readonly")) {
-                        readOnlyDefinitions[name] = {
-                            value: types["readonly"],
-                            visibility: visibility
-                        };
-                    }
-                });
-            });
-
-            return readOnlyDefinitions;
-        }
-
         var args = parseArgs(arg1, arg2, arg3),
             name = args.name,
-            members = args.members,
-            definitions = parseDefinitions(members),
+            definitions = DefinitionList.parse(privatesMap, null, args.definitions),
             prototype = args.prototype,
             proxyConstructor = function () {
-                var constructor = getConstructor(),
-                    publics = this,
-                    privates;
+                var publics = this,
+                    privates,
+                    beingConstructed = false;
 
-                if (!(this instanceof namedConstructor)) {
+                if (!(publics instanceof namedConstructor)) {
                     throw new Exception("Constructor must be called on an instance of its class");
                 }
 
-                privates = getPrivates(publics);
+                privates = privatesMap.get(publics);
 
-                defineProperties(privates, definitions[TYPE_PRIVATE]);
-                defineProperties(privates, definitions[TYPE_PROTECTED]);
-
-                if (constructor) {
-                    constructor.apply(privates, arguments);
+                if (!privates) {
+                    beingConstructed = true;
+                    privates = createPrivates(publics);
                 }
 
-                util.each(getReadOnlyDefinitions(), function (data, name) {
-                    var object = data.visibility === TYPE_PUBLIC ? Object.getPrototypeOf(publics) : privates;
+                if (beingConstructed) {
+                    definitions.getPrivates().applyTo(privates);
+                    definitions.getProtecteds().applyTo(privates);
+                }
 
-                    data = Object.getOwnPropertyDescriptor(object, name);
-                    data.set = undefined;
-                    Object.defineProperty(object, name, data);
-                });
+                if (publics.constructor && publics.constructor !== namedConstructor) {
+                    publics.constructor.apply(publics, arguments);
+                }
+
+                if (beingConstructed) {
+                    definitions.getPrivates().getReadOnlys().applyTo(privates, { allowWrites: false });
+                    definitions.getProtecteds().getReadOnlys().applyTo(privates, { allowWrites: false });
+                    definitions.getPublics({ includeInherited: true }).getReadOnlys().applyTo(publics, { allowWrites: false });
+                }
             },
             namedConstructor = namedFunction(proxyConstructor, name);
 
@@ -150,116 +58,42 @@ define([
         }
 
         namedConstructor.prototype = Object.create(prototype);
-        namedConstructor.prototype.constructor = namedConstructor;
-
-        defineProperties(namedConstructor.prototype, definitions[TYPE_PUBLIC], function (name) {
-            return name !== "constructor";
+        Object.defineProperty(namedConstructor.prototype, "constructor", {
+            configurable: true,
+            enumerable: true,
+            value: namedConstructor
         });
+
+        definitions.getPublics().applyTo(namedConstructor.prototype);
 
         namedConstructor.extend = function (arg1, arg2, arg3) {
             var args = parseArgs(arg1, arg2, arg3),
-                childDefinitions = parseDefinitions(args.members);
+                childDefinitions = definitions.extend(args.definitions);
 
-            return new Class(
-                args.name,
-                util.extend({}, args.members, {
-                    "public constructor": function () {
-                        var constructor = getConstructor();
-
-                        defineProperties(this, definitions[TYPE_PROTECTED]);
-
-                        if (childDefinitions[TYPE_PUBLIC] && childDefinitions[TYPE_PUBLIC].constructor) {
-                            childDefinitions[TYPE_PUBLIC].constructor.data.apply(this, arguments);
-                        } else if (constructor) {
-                            constructor.apply(this, arguments);
-                        }
-                    }
-                }),
-                namedConstructor.prototype
-            );
+            return new Class(args.name, childDefinitions, namedConstructor.prototype);
         };
 
         return namedConstructor;
     }
 
-    function createHash() {
-        return Object.create({ constructor: null });
-    }
-
     function parseArgs(arg1, arg2, arg3) {
         var name = arg1,
-            members = arg2,
+            definitions = arg2,
             prototype = arg3;
 
         if (util.isPlainObject(name)) {
-            members = name;
+            definitions = name;
             name = null;
         }
 
         return {
             name: name || "anonymous",
-            members: members || {},
+            definitions: definitions || {},
             prototype: prototype
         };
     }
 
-    function parseDefinitions(members) {
-        var definitions = createHash();
-
-        util.each(members, function (data, definition) {
-            var parts = definition.match(/^([^\s]+)(?:\s+([^\s]+))?(?:\s+([^\s]+))?$/),
-                visibility,
-                type,
-                name;
-
-            if (!parts) {
-                throw new Exception("Invalid property definition: '" + definition + "'");
-            }
-
-            visibility = parts[1];
-            type = parts[2];
-            name = parts[3];
-
-            if (visibility !== TYPE_PRIVATE && visibility !== TYPE_PROTECTED && visibility !== TYPE_PUBLIC) {
-                name = type;
-                type = visibility;
-                visibility = TYPE_PRIVATE;
-            }
-
-            if (!propertyDefiners.hasOwnProperty(type) || typeof name === "undefined") {
-                name = type;
-                type = "data";
-            }
-
-            definitions[visibility] = definitions[visibility] || createHash();
-            definitions[visibility][name] = definitions[visibility][name] || createHash();
-            definitions[visibility][name][type] = data;
-        }, { keys: true });
-
-        return definitions;
-    }
-
-    function defineProperty(object, type, name, data) {
-        var definer = propertyDefiners[type];
-
-        if (!definer) {
-            throw new Exception("Tried to define a property with an invalid type '" + type + "'");
-        }
-
-        definer(object, name, data);
-    }
-
-    function defineProperties(object, definitions, filter) {
-        util.each(definitions, function (definitionTypes, name) {
-            if (!filter || filter(name)) {
-                util.each(definitionTypes, function (data, type) {
-                    defineProperty(object, type, name, data);
-                });
-            }
-        }, { keys: true });
-    }
-
-    function getPrivates(publics) {
+    function createPrivates(publics) {
         var privates = privatesMap.get(publics);
 
         if (!privates) {
@@ -275,12 +109,6 @@ define([
     function namedFunction(parent, name) {
         /*jslint evil:true */
         return eval("(function " + name + "() { return parent.apply(this, arguments); })");
-    }
-
-    function wrap(value) {
-        return util.isFunction(value) && !value.extend ? function () {
-            return value.apply(getPrivates(this), arguments);
-        } : value;
     }
 
     return Class;
