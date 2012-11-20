@@ -155,6 +155,33 @@ define([
                 expect(map.get(key)).to.equal(6);
             });
 
+            it("should retrieve the value with the specified key if the key is positive zero", function () {
+                var map = new Map(),
+                    key = +0;
+
+                map.set(key, 6);
+
+                expect(map.get(key)).to.equal(6);
+            });
+
+            it("should retrieve the value with the specified key if the key is negative zero", function () {
+                var map = new Map(),
+                    key = -0;
+
+                map.set(key, 6);
+
+                expect(map.get(key)).to.equal(6);
+            });
+
+            it("should differentiate between the values negative and positive zero as a key", function () {
+                var map = new Map();
+
+                map.set(0, 5);
+                map.set(-0, 6);
+
+                expect(map.get(0)).to.equal(5);
+            });
+
             it("should retrieve the value with the specified key if the value is a string", function () {
                 var map = new Map(),
                     key = {},

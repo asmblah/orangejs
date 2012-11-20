@@ -54,6 +54,11 @@ define([
                 stringNamespaces[obj] = values;
             }
         } else if (obj === null || typeof obj === "undefined" || typeof obj === "number") {
+            // Handle negative and positive zero
+            if (obj === 0) {
+                obj = (1 / obj === -Infinity) ? "-0" : "0"
+            }
+
             values = namespaces[obj];
 
             if (!values) {
