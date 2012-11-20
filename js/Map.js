@@ -5,7 +5,8 @@ define([
 ) {
     "use strict";
 
-    var key = {},
+    var has = {}.hasOwnProperty,
+        key = {},
         namespaces = {},
         nextIndex = 0,
         stringNamespaces = {};
@@ -13,7 +14,8 @@ define([
     // ES6 Map
     // - See https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Map
     function Map() {
-        var index = nextIndex;
+        var index = nextIndex,
+            size = 0;
 
         nextIndex += 1;
 
@@ -23,26 +25,42 @@ define([
                     return false;
                 }
 
-                return delete namespace(key)[index];
+                delete getNamespace(key)[index];
+
+                size -= 1;
+
+                return true;
             },
 
             "get": function (key, defaultValue) {
-                var values = namespace(key);
+                var values = getNamespace(key);
 
                 return (values.hasOwnProperty(index)) ? values[index] : defaultValue;
             },
 
             "has": function (key) {
-                return namespace(key).hasOwnProperty(index);
+                return getNamespace(key).hasOwnProperty(index);
             },
 
             "set": function (key, value) {
-                namespace(key)[index] = value;
+                var namespace = getNamespace(key);
+
+                if (!has.call(namespace, index)) {
+                    size += 1;
+                }
+
+                namespace[index] = value;
+            }
+        });
+
+        Object.defineProperty(this, "size", {
+            get: function () {
+                return size;
             }
         });
     }
 
-    function namespace(obj) {
+    function getNamespace(obj) {
         var values,
             valueOf;
 

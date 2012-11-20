@@ -344,5 +344,38 @@ define([
                 });
             });
         });
+
+        describe("size", function () {
+            it("should return zero for a newly created map", function () {
+                expect(new Map().size).to.equal(0);
+            });
+
+            it("should return one for a map with one key", function () {
+                var map = new Map();
+
+                map.set(1, 2);
+
+                expect(map.size).to.equal(1);
+            });
+
+            it("should return zero for a map with one deleted key", function () {
+                var map = new Map();
+
+                map.set(1, 2);
+                map.delete(1);
+
+                expect(map.size).to.equal(0);
+            });
+
+            it("should return one for a map with one deleted key but one remaining", function () {
+                var map = new Map();
+
+                map.set(1, 2);
+                map.set(2, 3);
+                map.delete(2);
+
+                expect(map.size).to.equal(1);
+            });
+        });
     });
 });
