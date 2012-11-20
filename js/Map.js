@@ -7,7 +7,8 @@ define([
 
     var key = {},
         namespaces = {},
-        nextIndex = 0;
+        nextIndex = 0,
+        stringNamespaces = {};
 
     // ES6 Map
     // - See https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Map
@@ -45,7 +46,14 @@ define([
         var values,
             valueOf;
 
-        if (typeof obj !== "object") {
+        if (typeof obj === "string") {
+            values = stringNamespaces[obj];
+
+            if (!values) {
+                values = {};
+                stringNamespaces[obj] = values;
+            }
+        } else if (obj === null || typeof obj === "undefined" || typeof obj === "number") {
             values = namespaces[obj];
 
             if (!values) {

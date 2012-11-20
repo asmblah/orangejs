@@ -92,6 +92,33 @@ define([
                 expect(map.get(key)).to.equal(4);
             });
 
+            it("should differentiate between the value NaN as a key and the string 'NaN' as a key", function () {
+                var map = new Map();
+
+                map.set(util.global.NaN, 5);
+                map.set("NaN", 6);
+
+                expect(map.get(util.global.NaN)).to.equal(5);
+            });
+
+            it("should retrieve the value with the specified key if the key is null", function () {
+                var map = new Map(),
+                    key = null;
+
+                map.set(key, 4);
+
+                expect(map.get(key)).to.equal(4);
+            });
+
+            it("should differentiate between the value null as a key and the string 'null' as a key", function () {
+                var map = new Map();
+
+                map.set(null, 5);
+                map.set("null", 6);
+
+                expect(map.get(null)).to.equal(5);
+            });
+
             it("should retrieve the value with the specified key if the key is undefined", function () {
                 var map = new Map(),
                     key = undefined;
@@ -99,6 +126,15 @@ define([
                 map.set(key, 4);
 
                 expect(map.get(key)).to.equal(4);
+            });
+
+            it("should differentiate between the value undefined as a key and the string 'undefined' as a key", function () {
+                var map = new Map();
+
+                map.set(undefined, 5);
+                map.set("undefined", 6);
+
+                expect(map.get(undefined)).to.equal(5);
             });
 
             it("should retrieve the value with the specified key if the key is a plain object", function () {
